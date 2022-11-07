@@ -13,5 +13,7 @@ public class Board extends JFrame
 
     public static void main(String[] args) {
         new Board();
+        Space [][] grid = new Space[8][8];
+
     }
 }
