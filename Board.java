@@ -41,7 +41,7 @@ public class Board extends JFrame {
             }
         }
 
-        setSize(500, 500);
+        setSize(800, 800);
         setVisible(true);
     }
 
