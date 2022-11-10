@@ -34,8 +34,7 @@ public class Piece {
         return position;
     }
 
-    public void setPosition(int x)
-    {
+    public void setPosition(int x) {
         position = x;
     }
 
@@ -47,8 +46,7 @@ public class Piece {
         return captured;
     }
 
-    public void capture()
-    {
+    public void capture() {
         captured = true;
     }
 
