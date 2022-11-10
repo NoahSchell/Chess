@@ -5,29 +5,20 @@ BLACK PIECE == FALSE COLOR, WHITE PIECE == TRUE COLOR;
 import java.util.*;
 
 public class Piece {
-    protected int x, y; // this could become a Space
+    protected int position;
     protected boolean color, captured;
-    protected ArrayList<int[]> legalMoves = new ArrayList<int[]>(); // this would be ArrayList<Space>
+    protected ArrayList<Integer> legalMoves;
 
-    public Piece(int pos1, int pos2, boolean c) { // we set the space
-        x = pos1;
-        y = pos2;
+    public Piece(int x, boolean c) {
+        position = x;
         color = c;
         captured = false;
+        legalMoves = new ArrayList<Integer>();
     }
 
-    public Piece() {
-        x = 0;
-        y = 0;
-        color = false;
-        captured = false;
-    }
-
-    public boolean move(int a, int b) {
-        int[] move = { a, b };
-        if (legalMoves.contains(move)) {
-            x = a;
-            y = b;
+    public boolean move(int destination) {
+        if (legalMoves.contains(destination)) {
+            position = destination;
             return true;
         }
         return false;
