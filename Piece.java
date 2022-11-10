@@ -60,18 +60,27 @@ public class Piece {
     }
 
     public int right(int n) {
-        // if where you end up is to the right of where you start && where you end up
-        // isn't 0
-        // THINK ABOUT THIS
-        if ((position + n) % 8 < position % 8 && (position + n) % 8 != 0)// if its on the right edge
-            throw new IllegalStateException("This piece cannot move to the right.");
+        int start = position % 8; // gets the column of where the position is
+        int end = (position + n) % 8;
+        if (start == 0)
+            start = 8;
+        if (end == 0)
+            end = 8;
+        if (end < start)
+            throw new IllegalStateException("This piece cannot move to the right!");
         return n;
     }
 
     public int left(int n) {
-        if (position % 8 == 1)// if its on the left edge
-            throw new IllegalStateException("This piece cannot move to the left.");
-        return n * -1;
+        int start = position % 8;
+        int end = (position - n) % 8;
+        if (start == 0)
+            start = 8;
+        if (end == 0)
+            end = 8;
+        if (end > start)
+            throw new IllegalStateException("This piece cannot move to the left!");
+        return -n;
     }
 
     public void cleanMoves() {
