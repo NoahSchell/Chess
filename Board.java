@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 //  FALSE == BLACK PIECE, TRUE == WHITE PIECE
+//  For now, click the piece, then click the space. We can add drag stuff later. 
 
 public class Board extends JFrame {
     static Container win;
@@ -49,4 +50,7 @@ public class Board extends JFrame {
         new Board();
     }
 
+    public static void displayPeices() {
+        BufferedImage peices = ImageIO.read("pieces.png");
+    }
 }
