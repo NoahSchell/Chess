@@ -24,5 +24,7 @@ public class Pawn extends Piece {
             legalMoves.add(position + forward(1) + left(1));
         }
 
+
     }
+
 }

@@ -34,12 +34,22 @@ public class Piece {
         return position;
     }
 
+    public void setPosition(int x)
+    {
+        position = x;
+    }
+
     public boolean getColor() {
         return color;
     }
 
     public boolean getCaptured() {
         return captured;
+    }
+
+    public void capture()
+    {
+        captured = true;
     }
 
     public int forward(int n) {
