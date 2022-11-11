@@ -59,7 +59,7 @@ public class Piece {
     {
         return 8; 
     }
-    
+
     public int forward(int n) {
         if ((color && position + n * -8 < 1) || (!color && position + n * 8 > 64))
             throw new IllegalStateException("This piece cannot move forward");

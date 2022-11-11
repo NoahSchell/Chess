@@ -47,6 +47,21 @@ public class Board extends JFrame {
     }
 
     public static void main(String[] args) {
+        Piece[] game = Piece.game; 
+        //Noah, the game array is indexed by 0. Check out of bounds stuff and the getRow() getColumn()
+        for(int x=1; x <= 8; x++) // pawns!
+        {
+            game[x+8] = new Pawn(x+8, false); // second row filled with black pawns
+            game[x+(6*8)] = new Pawn(x+(6*8), true);// seventh row filled with white pawns
+        }
+        for (int x=1; x<=8; x+=7)
+        {
+            game[x] = new Rook(x, false); // space 1 and 8 are black rooks
+        }
+
+
+
+
         new Board();
     }
 /* 
