@@ -7,14 +7,16 @@ public class King extends Piece {
     public void setLegalMoves() {
 
         // Cardinal Directions
-        legalMoves.add(position + forward(1));
-        legalMoves.add(position + backward(1));
-        legalMoves.add(position + left(1));
-        legalMoves.add(position + right(1));
+        try { legalMoves.add(position + forward(1)); } catch (IllegalStateException e) {}
+        try { legalMoves.add(position + backward(1));} catch (IllegalStateException e) {}
+        try {legalMoves.add(position + left(1)); } catch (IllegalStateException e) {}
+        try {legalMoves.add(position + right(1));} catch (IllegalStateException e) {}
         // Diagonal Directions
-        legalMoves.add(position + forward(1) + right(1));
-
-        return;
+        try {legalMoves.add(position + forward(1) + right(1));} catch (IllegalStateException e) {}
+        try {legalMoves.add(position + forward(1) + left(1));} catch (IllegalStateException e) {}
+        try {legalMoves.add(position + backward(1) + right (1));} catch (IllegalStateException e) {}
+        try {legalMoves.add(position + backward(1) + left(1));} catch (IllegalStateException e) {}
+        cleanMoves();
     }
 
 }

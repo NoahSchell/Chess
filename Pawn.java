@@ -10,21 +10,22 @@ public class Pawn extends Piece {
                                                                                                         // double
                                                                                                         // forward
         {
-            legalMoves.add(position + forward(2));
+            try { legalMoves.add(position + forward(2)); } catch (IllegalStateException e) {}
         }
         // adds standard forward move
-        legalMoves.add(position + forward(1));
+        try { legalMoves.add(position + forward(1)); } catch (IllegalStateException e) {}
 
+        // checks capture spaces
         Piece potentialCapture = game[position + forward(1) + left(1)];
         if (potentialCapture != null && potentialCapture.getColor() != color) {
-            legalMoves.add(position + forward(1) + left(1));
+            try { legalMoves.add(position + forward(1) + left(1)); } catch (IllegalStateException e) {}
         }
         potentialCapture = game[position + forward(1) + right(1)];
         if (potentialCapture != null && potentialCapture.getColor() != color) {
-            legalMoves.add(position + forward(1) + left(1));
+            try { legalMoves.add(position + forward(1) + left(1)); } catch (IllegalStateException e) {}
         }
 
-
+        cleanMoves();
     }
 
 }
