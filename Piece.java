@@ -67,26 +67,34 @@ public class Piece {
         return n * -8;// if its a black piece, backwards is up on the board
     }
 
+    public static int getColumn(int n) // returns the column of an index from the array
+    {
+        int column = n%8; 
+        if (column == 0)
+            column = 8; 
+        return column;
+    }
+
+    public static int getRow(int n)
+    {
+        int row = n/8 + 1; // check if this works? 
+        if (n % 8 == 0)
+            row -=1; 
+        return row; 
+    }
+
     public int right(int n) {
-        int start = position % 8; // gets the column of where the position is
-        int end = (position + n) % 8;
-        if (start == 0)
-            start = 8;
-        if (end == 0)
-            end = 8;
-        if (end < start)
+        int start = getColumn(position); 
+        int end = getColumn(position + n);
+        if (end < start) // if the ending column is to the left of the starting column, throw exception
             throw new IllegalStateException("This piece cannot move to the right!");
         return n;
     }
 
     public int left(int n) {
-        int start = position % 8;
-        int end = (position - n) % 8;
-        if (start == 0)
-            start = 8;
-        if (end == 0)
-            end = 8;
-        if (end > start)
+        int start = getColumn(position);
+        int end = getColumn(position - n);
+        if (end > start) // if the ending column is to the right of the starting column, throw exception
             throw new IllegalStateException("This piece cannot move to the left!");
         return -n;
     }
