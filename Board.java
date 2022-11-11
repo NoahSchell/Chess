@@ -49,8 +49,8 @@ public class Board extends JFrame {
     public static void main(String[] args) {
         new Board();
     }
-
+/* 
     public static void displayPeices() {
         BufferedImage peices = ImageIO.read("pieces.png");
-    }
+    } */
 }

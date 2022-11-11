@@ -50,6 +50,16 @@ public class Piece {
         captured = true;
     }
 
+    public static int up()
+    {
+        return -8; 
+    }
+
+    public static int down()
+    {
+        return 8; 
+    }
+    
     public int forward(int n) {
         if ((color && position + n * -8 < 1) || (!color && position + n * 8 > 64))
             throw new IllegalStateException("This piece cannot move forward");
@@ -77,9 +87,7 @@ public class Piece {
 
     public static int getRow(int n)
     {
-        int row = n/8 + 1; // check if this works? 
-        if (n % 8 == 0)
-            row -=1; 
+        int row = (n-1)/8+1;
         return row; 
     }
 
