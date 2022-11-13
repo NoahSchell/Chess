@@ -7,7 +7,7 @@ public class Queen extends Piece{
 
     public void setLegalMoves()
     {
-        // the legal moves for a queen are the combination of a bishop and rook in that same spot. 
+        // the legal moves for a queen are the combination of a bishop and rook in that same spot!
         Bishop temp = new Bishop(position, color);
         temp.setLegalMoves();
         legalMoves.addAll(temp.getLegalMoves());
@@ -16,5 +16,4 @@ public class Queen extends Piece{
         legalMoves.addAll(temp2.getLegalMoves());
         cleanMoves();
     }
-    
 }

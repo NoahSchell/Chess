@@ -25,6 +25,14 @@ public class King extends Piece {
             // do something here...
         }
 
+
+        /*
+         * we will somehow need to ensure with each move that the king is not put in check by his own side, 
+         * and that if the king is in check, legalMoves are restricted. 
+         */
+
+
+        //only keeps moves where pieces in legalMoves list are of the opposite color
         cleanMoves();
     }
 

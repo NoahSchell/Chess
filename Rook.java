@@ -15,50 +15,74 @@ public class Rook extends Piece
 
     public void setLegalMoves()
     {
+        //gets the spaces below position
         int pointer = position;
-        do // while the spaces below the rook are not occupied, add them to legal moves
+        while (pointer + down() <= 63)
         {
-            if (game[pointer + 8] != null)
+            if (game[pointer + down()] == null) // if the space below is empty...
             {
-                legalMoves.add(pointer + 8);
-                pointer += 8;
+                legalMoves.add(pointer + down()); //add it to legal moves
+                pointer += down(); // update pointer
             }
-        } while (pointer + 8 < 64 && game[pointer + 8] != null);
-
+            else // if the space is not empty
+            {
+                if (game[pointer + down()].getColor() != color) // if the piece is of the opposite color
+                    legalMoves.add(pointer+down()); // it can capture
+                break; //but it can't go further
+            }
+        }
+        
+        //gets the spaces above position
         pointer = position; 
-        do // while the spaces above the rook are not occupied, add them to legal moves
+        while (pointer + up() >= 0)
         {
-            if (game[pointer - 8] != null)
+            if (game[pointer + up()] == null) // if the space above is empty
             {
-                legalMoves.add(pointer - 8);
-                pointer -= 8; 
+                legalMoves.add(pointer + up()); // add it 
+                pointer += up(); // update pointer
             }
-            
-        } while (pointer - 8 > 0 && game[pointer - 8] != null);
-
-        pointer = position;
-        int start = getColumn(position);
-        for (int x = start; x < 8; x++) // takes the starting column and goes to the right adding all possible legal moves
-        {
-            if(game[pointer + 1] != null)
+            else // if the space is not empty
             {
-                legalMoves.add(pointer + 1);
-                pointer += 1; 
+                if (game[pointer + up()].getColor() != color) // if the piece is of the opposite color
+                    legalMoves.add(pointer + up());
+                break; // but go no further
             }
-            else 
-                break; // get out of the for loop once you hit a piece
         }
 
+        //gets the spaces to the right of position
         pointer = position;
-        for(int x = start; x > 1; x--) // gets the legal moves to the left
+        int start = getColumn(position);
+        for (int x = start; x < 7; x++) // takes the starting column and goes to the right adding all possible legal moves
         {
-            if(game[pointer - 1] != null)
+            if(game[pointer + 1] == null) // if the space to the right is empty
             {
-                legalMoves.add(pointer - 1);
-                pointer -=1;
+                legalMoves.add(pointer + 1); // add it 
+                pointer += 1; //increment where you look
             }
-            else   
-                break; // get out of the for loop once you hit a piece
+            else //if the space is not empty
+            {
+                if (game[pointer + 1].getColor() != color) // and its of the opposite color
+                    legalMoves.add(pointer + 1); // add it 
+                break; // but get out
+            }
+                
+        }
+
+        //gets spaces to the left of position
+        pointer = position;
+        for(int x = start; x > 0; x--) // starts in column and moves left until leftmost column
+        {
+            if(game[pointer - 1] == null) // if the space is empty
+            {
+                legalMoves.add(pointer - 1); // add it 
+                pointer -= 1; // decrement pointer
+            }
+            else // if the space is not empty
+            {
+                if (game[pointer-1].getColor() != color) // if its of the opposite color
+                    legalMoves.add(pointer -1 );  //you can capture
+                break; // but go no further
+            }
         }
 
         if (canCastle)

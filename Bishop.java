@@ -10,7 +10,7 @@ public class Bishop extends Piece{
         int potentialSpace = 0; 
         // up right diagonal
         int pointer = position;
-        while (getRow(pointer) > 1 && getColumn(pointer) < 8) // while the row below 1 and the column is left of 8 
+        while (getRow(pointer) > 0 && getColumn(pointer) < 7) // while the row below the 0 row and the column is left of 7 row
         {
             potentialSpace = pointer + up() + right(1); 
             if (game[potentialSpace] == null) // if nothing is to the right and up, add it. Move pointer to that space now. 
@@ -20,6 +20,7 @@ public class Bishop extends Piece{
             }
             else // if something is in game[potentialSpace]...
             {  
+                //this if statement is not technically necessary, sine cleanMoves() should check this. but just to make sure. 
                 if (game[potentialSpace].getColor() != color) // if the piece is a different color, add it as a possible move
                     legalMoves.add(potentialSpace);
                 break; // get out of the while loop. We finished. 
@@ -28,7 +29,7 @@ public class Bishop extends Piece{
 
         // up left diagonal. follows the same pattern as above
         pointer = position;
-        while (getRow(pointer) > 1 && getColumn(pointer) > 1) // while the row is below 1 and the column is to the right of 1
+        while (getRow(pointer) > 0 && getColumn(pointer) > 0) // while the row is below 0 and the column is to the right of 0
         {
             potentialSpace = pointer + up() + left(1);
             if(game[potentialSpace] == null)
@@ -46,7 +47,7 @@ public class Bishop extends Piece{
 
         // down right diagonal
         pointer = position;
-        while (getRow(pointer) < 8 && getColumn(pointer) < 8) // while the row is above 8 and column is to the left of 8 
+        while (getRow(pointer) < 7 && getColumn(pointer) < 7) // while the row is above 7 and column is to the left of 7
         {
             potentialSpace = pointer + down() + right(1);
             if(game[potentialSpace] == null)
@@ -64,7 +65,7 @@ public class Bishop extends Piece{
 
         // down left diagonal
         pointer = position; 
-        while(getRow(pointer) < 8 && getColumn(pointer) > 1) // while the row is above 8 and column is right of 1
+        while(getRow(pointer) < 7 && getColumn(pointer) > 0) // while the row is above 7 and column is right of 0
         {
             potentialSpace = pointer + down() + left(1);
             if (game[potentialSpace] == null)

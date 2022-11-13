@@ -6,7 +6,7 @@ public class Pawn extends Piece {
 
     public void setLegalMoves() {
 
-        if ((color && position >= 49 && position <= 56) || (!color && position >= 9 && position <= 16)) // checks for
+        if ((color && position >= 48 && position <= 55) || (!color && position >= 8 && position <= 15)) // checks for
                                                                                                         // double
                                                                                                         // forward
         {
@@ -15,15 +15,18 @@ public class Pawn extends Piece {
         // adds standard forward move
         try { legalMoves.add(position + forward(1)); } catch (IllegalStateException e) {}
 
-        // checks capture spaces
-        Piece potentialCapture = game[position + forward(1) + left(1)];
+        // checks capture spaces. try blocks make sure game doesn't go out of bounds
+        Piece potentialCapture;
+        try {
+        potentialCapture = game[position + forward(1) + left(1)];
         if (potentialCapture != null && potentialCapture.getColor() != color) {
-            try { legalMoves.add(position + forward(1) + left(1)); } catch (IllegalStateException e) {}
-        }
+            legalMoves.add(position + forward(1) + left(1));
+        } } catch (IllegalStateException e) {}
+        try {
         potentialCapture = game[position + forward(1) + right(1)];
         if (potentialCapture != null && potentialCapture.getColor() != color) {
-            try { legalMoves.add(position + forward(1) + left(1)); } catch (IllegalStateException e) {}
-        }
+            legalMoves.add(position + forward(1) + left(1));
+        } } catch (IllegalStateException e) {}
 
         cleanMoves();
     }

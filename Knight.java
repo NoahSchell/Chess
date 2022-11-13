@@ -19,7 +19,7 @@ public class Knight extends Piece {
         try {legalMoves.add(position + right(2) + forward(1));} catch(IllegalStateException e){}
         try {legalMoves.add(position + right(2) + backward(1));} catch(IllegalStateException e){}
 
-        //only keeps 
+        //only keeps the moves that don't have pieces of the same color in them
         cleanMoves();
     }
 
