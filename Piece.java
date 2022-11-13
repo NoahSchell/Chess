@@ -69,11 +69,15 @@ public /*Abstract?*/ class Piece {
     {
         return -8; 
     }
+    public static int up(int x)
+    {    return x*-8; } // used for setting up pieces
 
     public static int down()
     {
         return 8; 
     }
+    public static int down(int x)
+    { return x*8;}
 
     public int forward(int n) {
         //makes sure the move won't go off the board
