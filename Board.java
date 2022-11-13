@@ -1,6 +1,5 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
 
 //  FALSE == BLACK PIECE, TRUE == WHITE PIECE
 //  For now, click the piece, then click the space. We can add drag stuff later. 
