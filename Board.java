@@ -26,6 +26,30 @@ public class Board extends JFrame {
         // it may be best to use a colorPanel setup...that might help us drag. Although that can be 
         //difficult with the game[]. not sure what to do here
         boolean lastWhite = false; 
+        JPanel panel;
+        for (int x = 0; x < 64; x++)
+        {
+            if (x%8==0)
+                lastWhite = !lastWhite;
+            panel = new JPanel();
+            if (game[x] != null)
+                panel.add(new JLabel(game[x].getClass().toString()));
+            if (lastWhite)
+            {
+                panel.setBackground(color2);
+                lastWhite = false;
+            }
+            else   
+            {
+                panel.setBackground(color1);
+                lastWhite = true;
+            }
+            p1.add(panel);
+        }
+
+
+
+        /* 
         JPanel[][] squares = new JPanel[8][8];
         for (int x = 0; x < 8; x++) {
             lastWhite = !lastWhite;
@@ -40,9 +64,10 @@ public class Board extends JFrame {
                 }
 
                 p1.add(squares[x][y]);
+                
             }
         }
-
+        */
         setSize(800, 800);
         setVisible(true);
     }
