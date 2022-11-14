@@ -6,7 +6,10 @@ public class Queen extends Piece{
     {
         super(x, col);
         if (!color)
-            image = new ImageIcon("C:\\Users\\nitro\\OneDrive\\Desktop\\BlackQueenChess.png");
+            image = new ImageIcon("PNG Files\\BlackQueen.png");
+        else
+            image = new ImageIcon("PNG Files\\WhiteQueen.png");
+            
     }
 
     

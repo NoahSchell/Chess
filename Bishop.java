@@ -1,8 +1,13 @@
+import javax.swing.*;
 public class Bishop extends Piece{
 
     public Bishop(int x, boolean col)
     {
         super(x, col);
+        if(!color)
+            image = new ImageIcon("PNG Files\\BlackBishop.png");
+        else
+            image = new ImageIcon("PNG Files\\WhiteBishop.png");
     }
     
     public void setLegalMoves()

@@ -1,7 +1,12 @@
+import javax.swing.*;
 public class Knight extends Piece {
 
     public Knight(int pos, boolean c) {
         super(pos, c);
+        if(!color)
+            image = new ImageIcon("PNG Files\\BlackKnight.png");
+        else
+            image = new ImageIcon("PNG Files\\WhiteKnight.png");
     }
 
     public void setLegalMoves() {

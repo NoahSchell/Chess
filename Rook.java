@@ -1,3 +1,4 @@
+import javax.swing.*;
 public class Rook extends Piece 
 {
     private boolean canCastle; 
@@ -6,6 +7,10 @@ public class Rook extends Piece
     {
         super(x, col);
         canCastle = true;
+        if(!color)
+            image = new ImageIcon("PNG Files\\BlackRook.png");
+        else   
+            image = new ImageIcon("PNG Files\\WhiteRook.png");
     }
     
     public void noCastle()

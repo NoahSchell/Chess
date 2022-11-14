@@ -1,9 +1,14 @@
+import javax.swing.*;
 public class King extends Piece {
 
     private boolean canCastle;
     public King(int pos, boolean c) {
         super(pos, c);
         canCastle = true;
+        if(!color)
+            image = new ImageIcon("PNG Files\\BlackKing.png");
+        else
+            image = new ImageIcon("PNG Files\\WhiteKing.png");
     }
 
     public void setLegalMoves() {

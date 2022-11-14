@@ -1,7 +1,12 @@
+import javax.swing.*;
 public class Pawn extends Piece {
 
     public Pawn(int pos, boolean c) {
         super(pos, c);
+        if(!color)
+            image = new ImageIcon("PNG Files\\BlackPawn.png");
+        else
+            image = new ImageIcon("PNG Files\\WhitePawn.png");
     }
 
     public void setLegalMoves() {
