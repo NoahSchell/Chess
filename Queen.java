@@ -1,9 +1,15 @@
+import javax.swing.*;
+
 public class Queen extends Piece{
 
     public Queen(int x, boolean col)
     {
         super(x, col);
+        if (!color)
+            image = new ImageIcon("C:\\Users\\nitro\\OneDrive\\Desktop\\BlackQueenChess.png");
     }
+
+    
 
     public void setLegalMoves()
     {

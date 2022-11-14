@@ -1,17 +1,5 @@
-/*
- * Idea for a more efficient way to get legal moves for bishop and rook: 
- * 4 arrays for all moves in one particular direction. 
- * push to a stack so long as its null. 
- * when you hit a non-null position, if (game[pos].getColor != color)
- * then pop the stack and add it to legalMoves. reuse it for each array. 
- * 
- * 
- * this might be more efficient. it might not. idk
- */
-
-
-
 import java.util.*;
+import javax.swing.*;
 
 public /*Abstract?*/ class Piece {
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces. 
@@ -20,6 +8,7 @@ public /*Abstract?*/ class Piece {
     protected int position; 
     protected boolean color, captured;
     protected ArrayList<Integer> legalMoves;
+    protected ImageIcon image;
 
     public Piece(int x, boolean c) {
         position = x;
@@ -28,11 +17,18 @@ public /*Abstract?*/ class Piece {
         legalMoves = new ArrayList<Integer>();
     }
 
+    public ImageIcon getImage()
+    {
+        return image;
+    }
+
     // this method is intentionally blank, and is overridden in all subclasses. 
     public void setLegalMoves(){}
 
     //accessor methods
     public ArrayList<Integer> getLegalMoves() {
+        setLegalMoves();
+        cleanMoves();
         return legalMoves;
     }
 

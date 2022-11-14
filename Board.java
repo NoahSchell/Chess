@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
 
 //  FALSE == BLACK PIECE, TRUE == WHITE PIECE
 //  For now, click the piece, then click the space. We can add drag stuff later. 
@@ -23,8 +24,6 @@ public class Board extends JFrame {
         win.add(p2, BorderLayout.WEST);
         win.add(p1, BorderLayout.CENTER);
 
-        // it may be best to use a colorPanel setup...that might help us drag. Although that can be 
-        //difficult with the game[]. not sure what to do here
         boolean lastWhite = false; 
         JPanel panel;
         for (int x = 0; x < 64; x++)
@@ -33,7 +32,7 @@ public class Board extends JFrame {
                 lastWhite = !lastWhite;
             panel = new JPanel();
             if (game[x] != null)
-                panel.add(new JLabel(game[x].getClass().toString()));
+                panel.add(new JLabel(game[x].getImage()));
             if (lastWhite)
             {
                 panel.setBackground(color2);
@@ -47,27 +46,6 @@ public class Board extends JFrame {
             p1.add(panel);
         }
 
-
-
-        /* 
-        JPanel[][] squares = new JPanel[8][8];
-        for (int x = 0; x < 8; x++) {
-            lastWhite = !lastWhite;
-            for (int y = 0; y < 8; y++) {
-                squares[x][y] = new JPanel(); 
-                if (lastWhite) {
-                    squares[x][y].setBackground(color2);
-                    lastWhite = false;
-                } else {
-                    squares[x][y].setBackground(color1);
-                    lastWhite = true;
-                }
-
-                p1.add(squares[x][y]);
-                
-            }
-        }
-        */
         setSize(800, 800);
         setVisible(true);
     }
