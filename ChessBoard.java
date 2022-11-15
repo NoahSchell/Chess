@@ -69,14 +69,30 @@ public class ChessBoard extends JFrame {
                 for(int y = 0; y < stuff.length; y++)
                 {
                     if (stuff[y] == button)
+                    {
                         ChessBoard.setGreen(x);
+                        return;
+                    }
                 }
-
+            }
+            resetColors();
+        }
+    }
+    public static void resetColors()
+    {
+        int z = 0;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                if ((x + y) % 2 != 0)
+                    squares[z].setBackground(dark);
+                else
+                    squares[z].setBackground(light);
+                z++;
             }
         }
     }
-
     public static void setGreen(int pos) {
+        resetColors();
         ArrayList<Integer> indicies = game[pos].getLegalMoves();
         for(int x = 0; x<indicies.size(); x++)
         {
