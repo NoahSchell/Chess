@@ -58,7 +58,8 @@ public /* Abstract? */ class Piece {
     public boolean move(int destination) {
         setLegalMoves(); // possible source of error if this doesn't call subclass method.
         if (legalMoves.contains(destination)) { // if the destination is a legal move
-            game[destination] = game[position]; // set the piece at destination = piece at position
+            game[destination] = game[position]; // set the piece at destination = piece at 
+            game[position] = null; // set old spot to null because nothing is there
             position = destination; // update position variable for the piece to be destination
             return true;
         }

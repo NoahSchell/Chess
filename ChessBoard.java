@@ -9,7 +9,6 @@ import java.util.*;
 public class ChessBoard extends JFrame {
     static JPanel[] squares = new JPanel[64];
     static Piece[] game = Piece.game;
-
     static Color dark = new Color(150, 111, 67);
     static Color light = new Color(242, 210, 173);
     static Color selected = Color.decode("#a5e68c");
@@ -44,35 +43,56 @@ public class ChessBoard extends JFrame {
         win.add(board);
 
         loadPosition(startFen);
-        this.displayGame();
+        displayGame();
         setSize(600, 600);
         setVisible(true);
     }
 
     public void displayGame() {
         for (int x = 0; x < 64; x++)
-        {
             squares[x].removeAll(); // remove everything from each JPanel
-        }
         for (int x = 0; x < 64; x++) { // redisplay game
-            JButton button;
+            JButton button = new JButton();
             if (game[x] != null) {
-                button = new JButton(game[x].getImage());
-                button.setText(null);
-                button.setVisible(true);
+                button.setIcon(game[x].getImage());
                 button.setOpaque(true);
                 button.setContentAreaFilled(false);
                 button.setBorderPainted(false);
                 button.setFocusPainted(false);
-                //button.addActionListener(new Mouse());
                 button.addMouseListener(new Mouse());
-                squares[x].add(button);
+                button.setVisible(true);
             }
+            else
+                button.setVisible(false);
+            squares[x].add(button);
         }
     }
-
+    public void redisplayGame()
+    {
+        for(int x=0; x<64; x++)
+        {
+            JButton button = (JButton) (squares[x].getComponent(0));
+            button.setOpaque(true);
+            button.setContentAreaFilled(false);
+            button.setBorderPainted(false);
+            button.setFocusPainted(false);
+            button.addMouseListener(new Mouse());
+            if (game[x] == null) 
+                button.setVisible(false);
+            else
+            {
+                button.setIcon(game[x].getImage());
+                button.setOpaque(true);
+                button.setContentAreaFilled(false);
+                button.setBorderPainted(false);
+                button.setFocusPainted(false);
+                button.setVisible(true);
+            }
+            
+        }
+    }
     //returns the index in squares[] or game[] of where the mouse is. 
-    public int getIndex() 
+    public int getIndex(MouseEvent e) 
     {
         Point mp = getMousePosition();
         mp.translate(0, -30);
@@ -80,7 +100,7 @@ public class ChessBoard extends JFrame {
         if (panel instanceof JPanel)
             for (int x =0; x < 64; x++)
                 if (squares[x] == panel)
-                    return x;
+                    return x; 
         return -1;
     }
 
@@ -105,7 +125,7 @@ public class ChessBoard extends JFrame {
 
         public void mouseClicked(MouseEvent e)
         {
-            int index = getIndex();
+            int index = getIndex(e);
             if (selectedPiece == null) // if no piece is currently selected
             {
                 if (game[index] == null) // if you clicked a blank space
@@ -122,7 +142,7 @@ public class ChessBoard extends JFrame {
             else // if a piece is currently selected
             {
                 if (selectedPiece.move(index)) // if that piece can move where you clicked, do it
-                    displayGame(); // and update the board
+                    redisplayGame(); // and update the board
                 selectedPiece = null; // unselect that piece
                 resetColors(); //reset the colors
             }
