@@ -16,8 +16,10 @@ public class ChessBoard extends JFrame {
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
 
     public ChessBoard() {
+        addMouseListener(new Mouse());
         for (int x = 0; x < 64; x++) {
             squares[x] = new JPanel();
+            squares[x].addMouseListener(new Mouse());
         }
         Container win = getContentPane();
 
@@ -39,7 +41,7 @@ public class ChessBoard extends JFrame {
 
         win.add(board);
 
-        loadPosition("r1bq1rk1/bppp1ppp/p1n2n2/4p3/2B1P3/2PP1N2/PP1N1PPP/R1BQ1RK1");
+        loadPosition(startFen);
         this.displayGame();
         setSize(600, 600);
         setVisible(true);
@@ -47,37 +49,60 @@ public class ChessBoard extends JFrame {
 
     public void displayGame() {
         for (int x = 0; x < 64; x++) {
+            JButton button;
             if (game[x] != null) {
-                JButton button = new JButton(game[x].getImage());
+                button = new JButton(game[x].getImage());
+                button.setText(null);
+                button.setVisible(true);
                 button.setOpaque(true);
                 button.setContentAreaFilled(false);
                 button.setBorderPainted(false);
                 button.setFocusPainted(false);
                 button.addActionListener(new Mouse());
+                button.addMouseListener(new Mouse());
                 squares[x].add(button);
-            } else
-                squares[x].removeAll();
+            }
         }
+    }
+
+    public int getIndex(int a, int b) // one box is 75x75 pixels
+    {
+        int index = (b/75 * 8) + a/75; // y coordinate /75 gets the column * 8 for column, then add a/75
+        return index;
     }
 
     public class Mouse extends MouseInputAdapter implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            Object button = e.getSource();
-            
-            for (int x = 0; x < 64; x++) {
-                Component [] stuff = squares[x].getComponents();
-                for(int y = 0; y < stuff.length; y++)
-                {
-                    if (stuff[y] == button)
+            if (e.getSource() instanceof JButton)
+            {
+                for (int x = 0; x < 64; x++) {
+                    Component [] stuff = squares[x].getComponents();
+                    for(int y = 0; y < stuff.length; y++)
                     {
-                        ChessBoard.setGreen(x);
-                        return;
+                        if (stuff[y] == e.getSource())
+                        {
+                            ChessBoard.setGreen(x);
+                        }
                     }
                 }
             }
-            resetColors();
+            
         }
+        
+
+        public void mouseClicked(MouseEvent e)
+        {
+            if (e.getSource() instanceof JFrame)
+                resetColors();
+        }
+        
+        public void mouseEntered(MouseEvent e)
+        {
+            
+        }
+
     }
+
     public static void resetColors()
     {
         int z = 0;
@@ -93,6 +118,8 @@ public class ChessBoard extends JFrame {
     }
     public static void setGreen(int pos) {
         resetColors();
+        if (game[pos] == null)
+            return;
         ArrayList<Integer> indicies = game[pos].getLegalMoves();
         for(int x = 0; x<indicies.size(); x++)
         {

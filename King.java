@@ -29,12 +29,14 @@ public class King extends Piece {
         } catch (IllegalStateException e) {
         }
         try {
-            legalMoves.add(position + right(1));
+            if (game[position + right(1)] == null || game[position + right(1)].getColor() != color)
+                legalMoves.add(position + right(1));
         } catch (IllegalStateException e) {
         }
         // Diagonal Directions
         try {
-            legalMoves.add(position + forward(1) + right(1));
+            if (game[position + forward(1) + right(1)] == null || game[position + forward(1) + right(1)].getColor() != color)
+                legalMoves.add(position + forward(1) + right(1));
         } catch (IllegalStateException e) {
         }
         try {

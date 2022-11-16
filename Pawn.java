@@ -17,13 +17,15 @@ public class Pawn extends Piece {
                                                                                                         // forward
         {
             try {
+            if (game[position + forward(1)] == null)// makes sure there's nothing in front of it 
                 legalMoves.add(position + forward(2));
             } catch (IllegalStateException e) {
             }
         }
         // adds standard forward move
         try {
-            legalMoves.add(position + forward(1));
+            if (game[position + forward(1)] == null) // makes sure there's no piece in front of it 
+                legalMoves.add(position + forward(1));
         } catch (IllegalStateException e) {
         }
 
