@@ -14,16 +14,18 @@ public class ChessBoard extends JFrame {
     static Color light = new Color(242, 210, 173);
     static Color selected = Color.decode("#a5e68c");
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    JPanel board; 
+    Piece selectedPiece = null;
 
     public ChessBoard() {
         addMouseListener(new Mouse());
         for (int x = 0; x < 64; x++) {
             squares[x] = new JPanel();
-            squares[x].addMouseListener(new Mouse());
+            squares[x].setSize((int)(getWidth()/8.0), (int)(getHeight()/8.0));
         }
         Container win = getContentPane();
 
-        JPanel board = new JPanel();
+        board = new JPanel();
         board.setLayout(new GridLayout(8, 8));
 
         int z = 0;
@@ -48,7 +50,11 @@ public class ChessBoard extends JFrame {
     }
 
     public void displayGame() {
-        for (int x = 0; x < 64; x++) {
+        for (int x = 0; x < 64; x++)
+        {
+            squares[x].removeAll(); // remove everything from each JPanel
+        }
+        for (int x = 0; x < 64; x++) { // redisplay game
             JButton button;
             if (game[x] != null) {
                 button = new JButton(game[x].getImage());
@@ -58,17 +64,24 @@ public class ChessBoard extends JFrame {
                 button.setContentAreaFilled(false);
                 button.setBorderPainted(false);
                 button.setFocusPainted(false);
-                button.addActionListener(new Mouse());
+                //button.addActionListener(new Mouse());
                 button.addMouseListener(new Mouse());
                 squares[x].add(button);
             }
         }
     }
 
-    public int getIndex(int a, int b) // one box is 75x75 pixels
+    //returns the index in squares[] or game[] of where the mouse is. 
+    public int getIndex() 
     {
-        int index = (b/75 * 8) + a/75; // y coordinate /75 gets the column * 8 for column, then add a/75
-        return index;
+        Point mp = getMousePosition();
+        mp.translate(0, -30);
+        Component panel = board.getComponentAt(mp);
+        if (panel instanceof JPanel)
+            for (int x =0; x < 64; x++)
+                if (squares[x] == panel)
+                    return x;
+        return -1;
     }
 
     public class Mouse extends MouseInputAdapter implements ActionListener {
@@ -92,8 +105,27 @@ public class ChessBoard extends JFrame {
 
         public void mouseClicked(MouseEvent e)
         {
-            if (e.getSource() instanceof JFrame)
-                resetColors();
+            int index = getIndex();
+            if (selectedPiece == null) // if no piece is currently selected
+            {
+                if (game[index] == null) // if you clicked a blank space
+                {
+                    resetColors(); // reset the colors
+                    selectedPiece = null; // you did not select a piece
+                }
+                else // if you clicked a space that has a piece
+                {
+                    setGreen(index); // set legal moves of that index green
+                    selectedPiece = game[index]; // you selected that piece 
+                }
+            }
+            else // if a piece is currently selected
+            {
+                if (selectedPiece.move(index)) // if that piece can move where you clicked, do it
+                    displayGame(); // and update the board
+                selectedPiece = null; // unselect that piece
+                resetColors(); //reset the colors
+            }
         }
         
         public void mouseEntered(MouseEvent e)

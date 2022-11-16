@@ -29,8 +29,9 @@ public /* Abstract? */ class Piece {
 
     // accessor methods
     public ArrayList<Integer> getLegalMoves() {
-        setLegalMoves();
-        cleanMoves();
+        legalMoves.clear(); // clear everything
+        setLegalMoves(); // get everything
+        cleanMoves(); // make sure its good
         return legalMoves;
     }
 
@@ -56,8 +57,9 @@ public /* Abstract? */ class Piece {
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
         setLegalMoves(); // possible source of error if this doesn't call subclass method.
-        if (legalMoves.contains(destination)) {
-            position = destination;
+        if (legalMoves.contains(destination)) { // if the destination is a legal move
+            game[destination] = game[position]; // set the piece at destination = piece at position
+            position = destination; // update position variable for the piece to be destination
             return true;
         }
         return false;
