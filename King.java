@@ -1,9 +1,8 @@
 import javax.swing.*;
-
+import java.util.*;
 public class King extends Piece {
-
     private boolean canCastle;
-
+    private boolean inCheck;
     public King(int pos, boolean c) {
         super(pos, c);
         canCastle = true;
@@ -14,7 +13,6 @@ public class King extends Piece {
     }
 
     public void setLegalMoves() {
-
         // Cardinal Directions
         try {
             legalMoves.add(position + forward(1));
@@ -30,13 +28,18 @@ public class King extends Piece {
         }
         try {
             if (game[position + right(1)] == null || game[position + right(1)].getColor() != color)
+            {
                 legalMoves.add(position + right(1));
+            } 
         } catch (IllegalStateException e) {
         }
         // Diagonal Directions
+        
         try {
             if (game[position + forward(1) + right(1)] == null || game[position + forward(1) + right(1)].getColor() != color)
+            {
                 legalMoves.add(position + forward(1) + right(1));
+            }
         } catch (IllegalStateException e) {
         }
         try {
@@ -60,11 +63,27 @@ public class King extends Piece {
         /*
          * we will somehow need to ensure with each move that the king is not put in
          * check by his own side,
-         * and that if the king is in check, legalMoves are restricted.
          */
 
         // only keeps moves where pieces in legalMoves list are of the opposite color
         cleanMoves();
+    
     }
-
+    
+    // returns true if the king is in check(any legal move is a capture of our king)
+    boolean isInCheck()
+    {
+        if(this.color)
+        {
+            if(ChessBoard.blackSqaures().contains(position))
+                return true;
+            return false;
+        }
+        else
+        {
+            if(ChessBoard.whiteSqaures().contains(position))
+                return true;
+            return false;
+        }
+    }
 }

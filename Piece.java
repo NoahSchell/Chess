@@ -8,6 +8,7 @@ public /* Abstract? */ class Piece {
     // default), and list of legalMoves as indicies in game
     protected int position;
     protected boolean color, captured;
+    protected static boolean turn = true; // white goes first
     protected ArrayList<Integer> legalMoves;
     protected ImageIcon image;
 
@@ -16,6 +17,11 @@ public /* Abstract? */ class Piece {
         color = c;
         captured = false;
         legalMoves = new ArrayList<Integer>();
+    }
+    
+    public static boolean getTurn()
+    {
+        return turn;
     }
 
     // this method is intentionally blank, and is overridden in all subclasses.
@@ -33,6 +39,11 @@ public /* Abstract? */ class Piece {
         setLegalMoves(); // get everything
         cleanMoves(); // make sure its good
         return legalMoves;
+    }
+    
+    public void removeMove(int x)
+    {
+        legalMoves.remove(x);
     }
 
     public Integer getPosition() {
@@ -57,10 +68,13 @@ public /* Abstract? */ class Piece {
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
         setLegalMoves(); // possible source of error if this doesn't call subclass method.
+        if (getColor() != turn) // if the piece you want to move isn't turn, get out of here
+            return false; 
         if (legalMoves.contains(destination)) { // if the destination is a legal move
             game[destination] = game[position]; // set the piece at destination = piece at 
             game[position] = null; // set old spot to null because nothing is there
             position = destination; // update position variable for the piece to be destination
+            turn = !turn; // changes which sides turn it is
             return true;
         }
         return false;
@@ -111,6 +125,11 @@ public /* Abstract? */ class Piece {
     {
         return n / 8;
     }
+    
+    public static void changeTurn()
+    {
+        turn = !turn;
+    }
 
     public int right(int n) {
         int start = getColumn(position);
@@ -132,8 +151,6 @@ public /* Abstract? */ class Piece {
         return -n;
     }
 
-    // we will need to update this to ensure the moves will not place the king in
-    // check. using a stack?
     public void cleanMoves() {
         for (int x = 0; x < legalMoves.size(); x++) {
             // if a piece is in the legal move spot and that piece is the same color, remove
@@ -142,36 +159,4 @@ public /* Abstract? */ class Piece {
                 legalMoves.remove(x);
         }
     }
-
-    // this method initializes the pieces in their correct positions to begin the
-    // game
-    public static void setUpBoard() {
-        for (int x = 0; x < 8; x++) // pawns
-        {
-            game[x + Piece.down()] = new Pawn(x + Piece.down(), false); // second row filled with black pawns
-            game[x + Piece.down(6)] = new Pawn(x + Piece.down(6), true);// seventh row filled with white pawns
-        }
-        for (int x = 0; x < 8; x += 7) // rooks
-        {
-            game[x] = new Rook(x, false); // space 0 and 7 are black rooks
-            game[x + Piece.down(7)] = new Rook(x + Piece.down(7), true); // down 7 rows are white rooks
-        }
-        for (int x = 1; x < 7; x += 5) // knights
-        {
-            game[x] = new Knight(x, false); // spaces 1 and 6 are black knights
-            game[x + Piece.down(7)] = new Knight(x + Piece.down(7), true); // down 7 rows are white knights
-        }
-        for (int x = 2; x < 6; x += 3) // bishops
-        {
-            game[x] = new Bishop(x, false); // spaces 2 and 5 are black bishiops
-            game[x + Piece.down(7)] = new Bishop(x + Piece.down(7), true); // down 7 rows are white bishops
-        }
-        // queens
-        game[3] = new Queen(3, false); // space 3 is the black queen
-        game[3 + Piece.down(7)] = new Queen(3 + Piece.down(7), true); // down 7 rows is the white queen
-        // kings
-        game[4] = new King(4, false); // space 4 is the black king
-        game[4 + Piece.down(7)] = new King(4 + Piece.down(0), true); // down 7 rows is the white king
-    }
-
 }

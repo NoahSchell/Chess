@@ -13,10 +13,14 @@ public class ChessBoard extends JFrame {
     static Color light = new Color(242, 210, 173);
     static Color selected = Color.decode("#a5e68c");
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
+    static King whiteKing, blackKing;
     JPanel board; 
     Piece selectedPiece = null;
 
     public ChessBoard() {
+        board = new JPanel();
+        board.setLayout(new GridLayout(8, 8));
+
         addMouseListener(new Mouse());
         for (int x = 0; x < 64; x++) {
             squares[x] = new JPanel();
@@ -24,9 +28,7 @@ public class ChessBoard extends JFrame {
         }
         Container win = getContentPane();
 
-        board = new JPanel();
-        board.setLayout(new GridLayout(8, 8));
-
+       
         int z = 0;
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
@@ -49,48 +51,16 @@ public class ChessBoard extends JFrame {
     }
 
     public void displayGame() {
-        for (int x = 0; x < 64; x++)
-            squares[x].removeAll(); // remove everything from each JPanel
         for (int x = 0; x < 64; x++) { // redisplay game
-            JButton button = new JButton();
+            squares[x].removeAll();
             if (game[x] != null) {
-                button.setIcon(game[x].getImage());
-                button.setOpaque(true);
-                button.setContentAreaFilled(false);
-                button.setBorderPainted(false);
-                button.setFocusPainted(false);
-                button.addMouseListener(new Mouse());
-                button.setVisible(true);
+                JLabel temp = new JLabel(game[x].getImage()); 
+                squares[x].add(temp);
+                squares[x].revalidate(); // the cornerstone of our program. 
             }
-            else
-                button.setVisible(false);
-            squares[x].add(button);
         }
     }
-    public void redisplayGame()
-    {
-        for(int x=0; x<64; x++)
-        {
-            JButton button = (JButton) (squares[x].getComponent(0));
-            button.setOpaque(true);
-            button.setContentAreaFilled(false);
-            button.setBorderPainted(false);
-            button.setFocusPainted(false);
-            button.addMouseListener(new Mouse());
-            if (game[x] == null) 
-                button.setVisible(false);
-            else
-            {
-                button.setIcon(game[x].getImage());
-                button.setOpaque(true);
-                button.setContentAreaFilled(false);
-                button.setBorderPainted(false);
-                button.setFocusPainted(false);
-                button.setVisible(true);
-            }
-            
-        }
-    }
+    
     //returns the index in squares[] or game[] of where the mouse is. 
     public int getIndex(MouseEvent e) 
     {
@@ -104,25 +74,7 @@ public class ChessBoard extends JFrame {
         return -1;
     }
 
-    public class Mouse extends MouseInputAdapter implements ActionListener {
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() instanceof JButton)
-            {
-                for (int x = 0; x < 64; x++) {
-                    Component [] stuff = squares[x].getComponents();
-                    for(int y = 0; y < stuff.length; y++)
-                    {
-                        if (stuff[y] == e.getSource())
-                        {
-                            ChessBoard.setGreen(x);
-                        }
-                    }
-                }
-            }
-            
-        }
-        
-
+    public class Mouse extends MouseInputAdapter  {
         public void mouseClicked(MouseEvent e)
         {
             int index = getIndex(e);
@@ -135,17 +87,22 @@ public class ChessBoard extends JFrame {
                 }
                 else // if you clicked a space that has a piece
                 {
-                    setGreen(index); // set legal moves of that index green
                     selectedPiece = game[index]; // you selected that piece 
+                    if (Piece.getTurn() == selectedPiece.getColor()) // if its that colors turn
+                        setGreen(index); // set legal moves of that index green
                 }
             }
             else // if a piece is currently selected
             {
-                if (selectedPiece.move(index)) // if that piece can move where you clicked, do it
-                    redisplayGame(); // and update the board
+                if (selectedPiece.getLegalMoves().contains(index))
+                {
+                    selectedPiece.move(index);
+                    resetColors();
+                }
                 selectedPiece = null; // unselect that piece
                 resetColors(); //reset the colors
             }
+            displayGame();
         }
         
         public void mouseEntered(MouseEvent e)
@@ -160,8 +117,12 @@ public class ChessBoard extends JFrame {
         int z = 0;
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
+                if (game[z] == null)
+                    squares[z].setBackground(selected);
                 if ((x + y) % 2 != 0)
+                {
                     squares[z].setBackground(dark);
+                }
                 else
                     squares[z].setBackground(light);
                 z++;
@@ -192,8 +153,10 @@ public class ChessBoard extends JFrame {
                 } else {
                     switch (c) {
                         case 'k':
-                            game[row * 8 + column] = new King(row * 8 + column, false);
+                            blackKing = new King(row * 8 + column, false);
+                            game[row * 8 + column] = blackKing;
                             break;
+                            
                         case 'q':
                             game[row * 8 + column] = new Queen(row * 8 + column, false);
                             break;
@@ -215,7 +178,8 @@ public class ChessBoard extends JFrame {
                             break;
 
                         case 'K':
-                            game[row * 8 + column] = new King(row * 8 + column, true);
+                            whiteKing = new King(row * 8 + column, true);
+                            game[row * 8 + column] = whiteKing;
                             break;
 
                         case 'Q':
@@ -244,7 +208,90 @@ public class ChessBoard extends JFrame {
 
     }
 
+    public static King getWhiteKing()
+    {
+        return whiteKing;
+    }
+    
+    public static King getBlackKing()
+    {
+        return blackKing;
+    }
+    
+    public static ArrayList<Integer> blackSqaures()
+    {
+        ArrayList<Integer> s = new ArrayList<Integer>(); // array list of all squares that black controls
+        
+        for(int x = 0; x < 63; x++)
+        {
+            // if theres a piece there and its black and its not a pawn
+            if(game[x] != null && !game[x].getColor() && !(game[x] instanceof Pawn))
+            {
+                s.addAll(game[x].getLegalMoves());
+            }else if(game[x] != null && !game[x].getColor() && game[x] instanceof Pawn) // else if theres a piece and its black and its a pawn
+            {
+                 // pawns only control the sqaures diagonally infront of them
+                 s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1)); // add the pawns position plus forward and right/left
+                 s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));
+            }
+        }
+        
+        return s;
+    }
+    
+    public static ArrayList<Integer> whiteSqaures()
+    {
+        ArrayList<Integer> s = new ArrayList<Integer>(); // array list of all squares that white controls
+        
+        for(int x = 0; x < 63; x++)
+        {
+            // if theres a piece there and its white and its not a pawn
+            if(game[x] != null && game[x].getColor() && !(game[x] instanceof Pawn))
+            {
+                s.addAll(game[x].getLegalMoves());
+            }else if(game[x] != null && game[x].getColor() && game[x] instanceof Pawn) // else if theres a piece and its white and its a pawn
+            {
+                 // pawns only control the sqaures diagonally infront of them
+                 s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1)); // add the pawns position plus forward and right/left
+                 s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));
+            }
+        }
+        
+        return s;
+    }
+    
+    public static void psuedoLegalMoves()
+    {
+        ArrayList <Integer> toBeRemoved = new ArrayList<Integer>();
+        Piece []  copy = new Piece[64];
+        for(int x = 0; x < 63; x++)
+        {
+            if(game[x] != null && Piece.getTurn() == game[x].getColor())
+            {
+                for(int y = 0; y < game[x].getLegalMoves().size(); y++)
+                {
+                    int target = game[x].getLegalMoves().get(y);
+                    game[target] = game[x];
+                    game[x] = null;
+                    
+                    if(whiteKing.isInCheck())
+                    {
+                        toBeRemoved.add(target);
+                    }
+                    
+                    game[x] = game[target];
+                    if(copy[target] != null)
+                        game[target] = copy[target];
+                    else
+                        game[target] = null;
+                }
+            }
+        }
+        System.out.println(toBeRemoved);
+    }
+
     public static void main(String args[]) {
         new ChessBoard();
+        //psuedoLegalMoves();
     }
 }

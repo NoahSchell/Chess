@@ -17,7 +17,7 @@ public class Pawn extends Piece {
                                                                                                         // forward
         {
             try {
-            if (game[position + forward(1)] == null)// makes sure there's nothing in front of it 
+            if (game[position + forward(1)] == null && game[position + forward(2)] == null)// makes sure there's nothing in front of it 
                 legalMoves.add(position + forward(2));
             } catch (IllegalStateException e) {
             }
@@ -41,7 +41,7 @@ public class Pawn extends Piece {
         try {
             potentialCapture = game[position + forward(1) + right(1)];
             if (potentialCapture != null && potentialCapture.getColor() != color) {
-                legalMoves.add(position + forward(1) + left(1));
+                legalMoves.add(position + forward(1) + right(1));
             }
         } catch (IllegalStateException e) {
         }
