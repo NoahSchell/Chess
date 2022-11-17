@@ -44,7 +44,7 @@ public class ChessBoard extends JFrame {
 
         win.add(board);
 
-        loadPosition(startFen);
+        loadPosition("8/Rp1knNpp/4p3/4P3/3p4/4K3/6rP/8");
         displayGame();
         setSize(600, 600);
         setVisible(true);
@@ -263,23 +263,30 @@ public class ChessBoard extends JFrame {
     public static void psuedoLegalMoves()
     {
         ArrayList <Integer> toBeRemoved = new ArrayList<Integer>();
-        Piece []  copy = new Piece[64];
+        Piece []  copy = game.clone(); // copy is a fresh copy of the current position. Altering copy will not change game. 
         for(int x = 0; x < 63; x++)
         {
+            // theres a piece in that index that is turn
             if(game[x] != null && Piece.getTurn() == game[x].getColor())
             {
+                //loop through its legal moves
                 for(int y = 0; y < game[x].getLegalMoves().size(); y++)
                 {
+                    // for each legal move
                     int target = game[x].getLegalMoves().get(y);
-                    game[target] = game[x];
+                    // do the legal move
+                    game[target] = game[x]; // this should probably happen in copy
                     game[x] = null;
                     
-                    if(whiteKing.isInCheck())
+                    // if after the move, the king is in check
+                    if(whiteKing.isInCheck()) // should be dynamic to adapt to black king too
                     {
-                        toBeRemoved.add(target);
+                        toBeRemoved.add(target);//this is not ACTUALLY a legal move
                     }
                     
+                    // undo the move
                     game[x] = game[target];
+                    // stuff idk 
                     if(copy[target] != null)
                         game[target] = copy[target];
                     else
@@ -292,6 +299,6 @@ public class ChessBoard extends JFrame {
 
     public static void main(String args[]) {
         new ChessBoard();
-        //psuedoLegalMoves();
+        psuedoLegalMoves();
     }
 }
