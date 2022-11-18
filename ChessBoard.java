@@ -44,7 +44,7 @@ public class ChessBoard extends JFrame {
 
         win.add(board);
 
-        loadPosition("8/Rp1knNpp/4p3/4P3/3p4/4K3/6rP/8");
+        loadPosition(startFen);
         displayGame();
         setSize(600, 600);
         setVisible(true);
@@ -299,6 +299,6 @@ public class ChessBoard extends JFrame {
 
     public static void main(String args[]) {
         new ChessBoard();
-        psuedoLegalMoves();
+        //psuedoLegalMoves();
     }
 }
