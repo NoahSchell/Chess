@@ -77,13 +77,11 @@ public /* Abstract? */ class Piece {
             turn = !turn; // changes which sides turn it is
             if (turn)
             {
-                whiteTimerThread.resume();
-                blackTimerThread.suspend();
+                ChessBoard.updateThreads(true);
             }
             else
             {
-                whiteTimerThread.suspend();
-                blackTimerThread.resume();
+                ChessBoard.updateThreads(false);
             }
             
             if (this instanceof King || this instanceof Rook)

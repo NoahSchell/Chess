@@ -56,15 +56,22 @@ public class ChessBoard extends JFrame {
     }
 
 
-    Thread whiteTimeThread;
-    Thread blackTimeThread;
-    public void updateThreads(boolean co)
+    static Thread whiteTimeThread;
+    static Thread blackTimeThread;
+    public static void updateThreads(boolean co)
     {
         if (co)
         {
-            
+            whiteTimeThread.interrupt();
+            try {blackTimeThread.notify();} catch (IllegalMonitorStateException e) {}
+        }
+        else
+        {
+            try {whiteTimeThread.notify();} catch (IllegalMonitorStateException e) {}
+            blackTimeThread.interrupt();
         }
     }
+    
 
     public void updateVisible()
     {
