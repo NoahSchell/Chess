@@ -10,22 +10,20 @@ public class Pawn extends Piece {
             image = new ImageIcon("Pieces/BlackPawn.png");
     }
 
-    public void setLegalMoves() {
+    public void setPseudoLegalMoves() {
 
-        if ((color && position >= 48 && position <= 55) || (!color && position >= 8 && position <= 15)) // checks for
-                                                                                                        // double
-                                                                                                        // forward
+        if ((color && position >= 48 && position <= 55) || (!color && position >= 8 && position <= 15)) // checks for double forward
         {
             try {
             if (game[position + forward(1)] == null && game[position + forward(2)] == null)// makes sure there's nothing in front of it 
-                legalMoves.add(position + forward(2));
+                pseudoLegalMoves.add(position + forward(2));
             } catch (IllegalStateException e) {
             }
         }
         // adds standard forward move
         try {
             if (game[position + forward(1)] == null) // makes sure there's no piece in front of it 
-                legalMoves.add(position + forward(1));
+                pseudoLegalMoves.add(position + forward(1));
         } catch (IllegalStateException e) {
         }
 
@@ -34,19 +32,27 @@ public class Pawn extends Piece {
         try {
             potentialCapture = game[position + forward(1) + left(1)];
             if (potentialCapture != null && potentialCapture.getColor() != color) {
-                legalMoves.add(position + forward(1) + left(1));
+                pseudoLegalMoves.add(position + forward(1) + left(1));
             }
         } catch (IllegalStateException e) {
         }
         try {
             potentialCapture = game[position + forward(1) + right(1)];
             if (potentialCapture != null && potentialCapture.getColor() != color) {
-                legalMoves.add(position + forward(1) + right(1));
+                pseudoLegalMoves.add(position + forward(1) + right(1));
             }
         } catch (IllegalStateException e) {
         }
-
-        cleanMoves();
+        
+        // En Passant
     }
-
+    
+    // method to capture En Passant
+    public void enPassant()
+    {
+        int destination = position + left(1) + forward(1);
+        game[position + left(1)] = null;
+        game[destination] = game[position];
+        position = destination;
+    }
 }
