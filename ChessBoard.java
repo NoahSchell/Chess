@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.*;
@@ -14,12 +15,14 @@ public class ChessBoard extends JFrame {
     static Color selected = Color.decode("#a5e68c");
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR";
     static King whiteKing, blackKing;
-    JPanel board; 
+    JPanel board, options; 
     Piece selectedPiece = null;
 
     public ChessBoard() {
         board = new JPanel();
         board.setLayout(new GridLayout(8, 8));
+        options = new JPanel();
+        setUpOptions();
 
         addMouseListener(new Mouse());
         for (int x = 0; x < 64; x++) {
@@ -27,7 +30,7 @@ public class ChessBoard extends JFrame {
             squares[x].setSize((int)(getWidth()/8.0), (int)(getHeight()/8.0));
         }
         Container win = getContentPane();
-
+        win.setLayout( new BorderLayout());
        
         int z = 0;
         for (int x = 0; x < 8; x++) {
@@ -42,12 +45,145 @@ public class ChessBoard extends JFrame {
             }
         }
 
-        win.add(board);
+        
+        win.add(board, BorderLayout.CENTER);
+        win.add(options, BorderLayout.EAST);
 
         loadPosition(startFen);
         displayGame();
         setSize(600, 600);
-        setVisible(true);
+        setVisible(false);
+    }
+
+
+    Thread whiteTimeThread;
+    Thread blackTimeThread;
+    public void updateVisible()
+    {
+        options.setLayout(new GridLayout(2, 1, 0, 500));
+        JPanel whiteTime = new JPanel();
+        JPanel blackTime = new JPanel();
+
+        Timers whiteTimer = new Timers(true);
+        Timers blackTimer = new Timers(false);
+
+        whiteTimeThread = new Thread(whiteTimer);
+        blackTimeThread = new Thread(blackTimer);
+
+        
+        whiteTime.add(whiteTimer);
+        blackTime.add(blackTimer);
+
+
+        options.add(blackTime);
+        options.add(whiteTime);
+        this.setVisible(true);
+        whiteTimeThread.start();
+        blackTimeThread.start();
+    }
+
+    static JButton five, ten, fifteen, thirty; 
+    static int startTime; 
+    JFrame frame;
+    public void setUpOptions()
+    {
+        frame = new JFrame(); 
+        five = new JButton("5:00");
+        ten = new JButton("10:00");
+        fifteen = new JButton("15:00");
+        thirty = new JButton("30:00");
+        five.addActionListener(new OptionsPaneButtons());
+        ten.addActionListener(new OptionsPaneButtons());
+        fifteen.addActionListener(new OptionsPaneButtons());
+        thirty.addActionListener(new OptionsPaneButtons());
+
+        frame.setLayout(new GridLayout(2, 1));
+        JPanel question = new JPanel();
+        frame.add(question);
+        JPanel buttons = new JPanel();
+        frame.add(buttons);
+
+        question.add(new JLabel("Select the amount of starting time you wish to have"));
+        buttons.add(five);
+        buttons.add(ten);
+        buttons.add(fifteen);
+        buttons.add(thirty);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+    public class OptionsPaneButtons implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            if (e.getSource() == five)
+                startTime = 5;
+            if (e.getSource() == ten)
+                startTime = 10;
+            if (e.getSource() == fifteen)
+                startTime = 15;
+            if (e.getSource() == thirty)
+                startTime = 30;
+            frame.setVisible(false);
+            updateVisible();
+        }
+    }
+
+    public class Timers extends JLabel implements Runnable {
+        private int remainingTime = startTime * 60 * 1000; //starting minutes * 60 seconds * 1000 ms
+        Timer timer;
+        boolean color;
+        public Timers(boolean c) {
+            timer = new Timer(1000, new ActionListener() {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        repaint();
+                        revalidate();
+                    }
+            } );
+            timer.start();
+            timer.setRepeats(false);
+            color = c;
+        }
+
+        public String getText()
+        {
+            return getRemainingTime();
+        }
+
+        public String getRemainingTime() {
+            
+            int hours = (int) ((remainingTime / 3600000) % 60);
+            int minutes = (int) ((remainingTime / 60000) % 60);
+            int seconds = (int) (((remainingTime) / 1000) % 60);
+
+            return (format(hours) + ":" + format(minutes) + ":" + format(seconds));
+        }
+
+        public String format(int x)
+        {
+            String yeah = "" + x;
+            while (yeah.length() < 2)
+                yeah = "0" + x;
+            return yeah;
+        }
+
+        public void setRemainingTime(int n)
+        {
+            remainingTime = n;
+        }
+
+        public void run() 
+        {
+            while(true)
+            {
+                if (Piece.getTurn() == color)
+                {
+                    setRemainingTime(remainingTime - 1000);
+                    try {Thread.sleep(1000);} catch (InterruptedException e) {}
+                }  
+            }
+        }
     }
 
     public void displayGame() {

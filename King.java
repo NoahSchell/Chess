@@ -12,6 +12,11 @@ public class King extends Piece {
             image = new ImageIcon("Pieces/BlackKing.png");
     }
 
+    public void setCanCastle(boolean a)
+    {
+        canCastle = a; 
+    }
+
     public void setLegalMoves() {
         // Cardinal Directions
         try {

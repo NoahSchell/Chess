@@ -12,8 +12,9 @@ public class Rook extends Piece {
             image = new ImageIcon("Pieces/BlackRook.png");
     }
 
-    public void noCastle() {
-        canCastle = false;
+    public void setCanCastle(boolean a)
+    {
+        canCastle = a;
     }
 
     public void setLegalMoves() {
