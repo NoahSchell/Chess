@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.*;
 
 public class ChessBoard extends JFrame {
+
     static JPanel[] squares = new JPanel[64]; // what the GUI actually displays
     static Piece[] game = Piece.game; // computers internal representation of the board 
     
@@ -16,8 +17,8 @@ public class ChessBoard extends JFrame {
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
     
     static King whiteKing, blackKing; // static variables for the kings so that we can easily refer to them when looking at Checks
-    JPanel board; 
-    
+    JPanel board options; 
+
     Piece selectedPiece = null;
     
     public ChessBoard() {
@@ -27,10 +28,14 @@ public class ChessBoard extends JFrame {
         addMouseListener(new Mouse());
         for (int x = 0; x < 64; x++) {
             squares[x] = new JPanel();
-            squares[x].setSize((int)(getWidth()/8.0), (int)(getHeight()/8.0));
+            squares[x].setSize((int) (getWidth() / 8.0), (int) (getHeight() / 8.0));
         }
         Container win = getContentPane();
+
         
+
+        win.setLayout(new BorderLayout());
+
         int z = 0;
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
@@ -44,42 +49,179 @@ public class ChessBoard extends JFrame {
             }
         }
 
-        win.add(board);
+
+        win.add(board, BorderLayout.CENTER);
+        win.add(options, BorderLayout.EAST);
+
 
         loadPosition(startFen); // loads the starting position
         displayGame();
-        
+
         setSize(600, 600);
-        setVisible(true);
+        setVisible(false);
+    }
+
+    static Thread whiteTimeThread;
+    static Thread blackTimeThread;
+
+    public static void updateThreads(boolean co) {
+        if (co) {
+            whiteTimeThread.stop();
+            blackTimeThread.start();
+
+        } else {
+            whiteTimeThread.start();
+            blackTimeThread.stop();
+        }
+    }
+
+    public void updateVisible() {
+        options.setLayout(new GridLayout(2, 1, 0, 500));
+        JPanel whiteTime = new JPanel();
+        JPanel blackTime = new JPanel();
+
+        Timers whiteTimer = new Timers(true);
+        Timers blackTimer = new Timers(false);
+
+        whiteTimeThread = new Thread(whiteTimer);
+        blackTimeThread = new Thread(blackTimer);
+
+        whiteTime.add(whiteTimer);
+        blackTime.add(blackTimer);
+
+        options.add(blackTime);
+        options.add(whiteTime);
+        this.setVisible(true);
+        whiteTimeThread.start();
+        blackTimeThread.start();
+    }
+
+    static JButton five, ten, fifteen, thirty;
+    static int startTime;
+    JFrame frame;
+
+    public void setUpOptions() {
+        frame = new JFrame();
+        five = new JButton("5:00");
+        ten = new JButton("10:00");
+        fifteen = new JButton("15:00");
+        thirty = new JButton("30:00");
+        five.addActionListener(new OptionsPaneButtons());
+        ten.addActionListener(new OptionsPaneButtons());
+        fifteen.addActionListener(new OptionsPaneButtons());
+        thirty.addActionListener(new OptionsPaneButtons());
+
+        frame.setLayout(new GridLayout(2, 1));
+        JPanel question = new JPanel();
+        frame.add(question);
+        JPanel buttons = new JPanel();
+        frame.add(buttons);
+
+        question.add(new JLabel("Select the amount of starting time you wish to have"));
+        buttons.add(five);
+        buttons.add(ten);
+        buttons.add(fifteen);
+        buttons.add(thirty);
+
+        frame.pack();
+        frame.setVisible(true);
+    }
+
+    public class OptionsPaneButtons implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == five)
+                startTime = 5;
+            if (e.getSource() == ten)
+                startTime = 10;
+            if (e.getSource() == fifteen)
+                startTime = 15;
+            if (e.getSource() == thirty)
+                startTime = 30;
+            frame.setVisible(false);
+            updateVisible();
+        }
+    }
+
+    public class Timers extends JLabel implements Runnable {
+        private int remainingTime = startTime * 60 * 1000; // starting minutes * 60 seconds * 1000 ms
+        Timer timer;
+        boolean color;
+
+        public Timers(boolean c) {
+            timer = new Timer(1000, new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    repaint();
+                    revalidate();
+                }
+            });
+            timer.start();
+            timer.setRepeats(true);
+            color = c;
+        }
+
+        public String getText() {
+            return getRemainingTime();
+        }
+
+        public String getRemainingTime() {
+
+            int hours = (int) ((remainingTime / 3600000) % 60);
+            int minutes = (int) ((remainingTime / 60000) % 60);
+            int seconds = (int) (((remainingTime) / 1000) % 60);
+
+            return (format(hours) + ":" + format(minutes) + ":" + format(seconds));
+        }
+
+        public String format(int x) {
+            String yeah = "" + x;
+            while (yeah.length() < 2)
+                yeah = "0" + x;
+            return yeah;
+        }
+
+        public void setRemainingTime(int n) {
+            remainingTime = n;
+        }
+
+        public void run() {
+            while (true) {
+                if (Piece.getTurn() == color) {
+                    setRemainingTime(remainingTime - 1000);
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+        }
+
     }
 
     public static void displayGame() {
         for (int x = 0; x < 64; x++) { // redisplay game
             squares[x].removeAll();
             if (game[x] != null) {
-                JLabel temp = new JLabel(game[x].getImage()); 
+                JLabel temp = new JLabel(game[x].getImage());
                 squares[x].add(temp);
                 squares[x].revalidate(); // the cornerstone of our program.
             }
         }
     }
-    
-    // returns the index in squares[] or game[] of where the mouse is. 
-    public int getIndex(MouseEvent e) 
-    {
+
+    // returns the index in squares[] or game[] of where the mouse is.
+    public int getIndex(MouseEvent e) {
         Point mp = getMousePosition();
         mp.translate(0, -30);
         Component panel = board.getComponentAt(mp);
         if (panel instanceof JPanel)
-            for (int x =0; x < 64; x++)
+            for (int x = 0; x < 64; x++)
                 if (squares[x] == panel)
-                    return x; 
+                    return x;
         return -1;
     }
 
-    public class Mouse extends MouseInputAdapter  {
-        public void mouseClicked(MouseEvent e)
-        {
+    public class Mouse extends MouseInputAdapter {
+        public void mouseClicked(MouseEvent e) {
             int index = getIndex(e);
             if (selectedPiece == null) // if no piece is currently selected
             {
@@ -87,57 +229,53 @@ public class ChessBoard extends JFrame {
                 {
                     resetColors(); // reset the colors
                     selectedPiece = null; // you did not select a piece
-                }
-                else // if you clicked a space that has a piece
+                } else // if you clicked a space that has a piece
                 {
-                    selectedPiece = game[index]; // you selected that piece 
+                    selectedPiece = game[index]; // you selected that piece
                     if (Piece.getTurn() == selectedPiece.getColor()) // if its that colors turn
                         setGreen(index); // set legal moves of that index green
                 }
-            }
-            else // if a piece is currently selected
+            } else // if a piece is currently selected
             {
-                selectedPiece.move(index); // play the move
-                resetColors();
-                
+
+                if (selectedPiece.getLegalMoves().contains(index)) {
+                    selectedPiece.move(index);
+                    resetColors();
+                }
+
                 selectedPiece = null; // unselect that piece
-                resetColors(); //reset the colors
+                resetColors(); // reset the colors
             }
             displayGame(); // update the GUI
         }
-        
-        public void mouseEntered(MouseEvent e)
-        {
-            
+
+        public void mouseEntered(MouseEvent e) {
+
         }
 
     }
 
-    public static void resetColors()
-    {
+    public static void resetColors() {
         int z = 0;
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
                 if (game[z] == null)
                     squares[z].setBackground(selected);
-                if ((x + y) % 2 != 0)
-                {
+                if ((x + y) % 2 != 0) {
                     squares[z].setBackground(dark);
-                }
-                else
+                } else
                     squares[z].setBackground(light);
                 z++;
             }
         }
     }
-    
+
     public static void setGreen(int pos) {
         resetColors();
         if (game[pos] == null)
             return;
         ArrayList<Integer> indicies = game[pos].getLegalMoves();
-        for(int x = 0; x<indicies.size(); x++)
-        {
+        for (int x = 0; x < indicies.size(); x++) {
             squares[indicies.get(x)].setBackground(selected);
         }
     }
@@ -161,7 +299,7 @@ public class ChessBoard extends JFrame {
                             blackKing = new King(row * 8 + column, false); // give Black's king a name so we can refer to it later
                             game[row * 8 + column] = blackKing;
                             break;
-                            
+
                         case 'q':
                             game[row * 8 + column] = new Queen(row * 8 + column, false);
                             break;
@@ -211,18 +349,18 @@ public class ChessBoard extends JFrame {
             }
         }
     }
-    
+
     // acessor methods for the Kings so that they may be easily referenced in King.isInCheck
     public static King getWhiteKing()
     {
+
         return whiteKing;
     }
-    
-    public static King getBlackKing()
-    {
+
+    public static King getBlackKing() {
         return blackKing;
     }
-    
+
     // returns an ArrayList of all the sqaures that black attacks
     public static ArrayList<Integer> blackSquares()
     {
@@ -239,12 +377,13 @@ public class ChessBoard extends JFrame {
                  // try catch so that we don't move out of bounds
                  try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1));}catch(IllegalStateException e){} // add the pawns position plus forward and right/left
                  try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));}catch(IllegalStateException e){}
+
             }
         }
-        
+
         return s;
     }
-    
+
     // returns an ArrayList of all of the squares that white attacks
     public static ArrayList<Integer> whiteSquares()
     {
@@ -261,14 +400,15 @@ public class ChessBoard extends JFrame {
                  // try catch so that we don't move out of bounds
                  try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1));}catch(IllegalStateException e){} // add the pawns position plus forward and right/left
                  try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));}catch(IllegalStateException e){}
+
             }
         }
-        
+
         return s;
     }
-    
     public static void main(String args[]) {
         new ChessBoard();
         new PromotionMenu(true); // create the promotion menu. Will be visible when needed and invisible when it's not
+
     }
 }

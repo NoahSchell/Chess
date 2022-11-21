@@ -90,7 +90,18 @@ public /* Abstract? */ class Piece {
             
             
             turn = !turn; // changes which sides turn it is
+
             hasMoved = true;
+
+            if (turn)
+            {
+                ChessBoard.updateThreads(true);
+            }
+            else
+            {
+                ChessBoard.updateThreads(false);
+            }
+
             
             // if a pawn was promoted
             if(this instanceof Pawn && (destination >= 0 && destination <= 8 || destination >= 56 && destination <= 63))
