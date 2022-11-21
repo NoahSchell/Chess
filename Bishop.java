@@ -10,26 +10,27 @@ public class Bishop extends Piece {
             image = new ImageIcon("Pieces/BlackBishop.png");
     }
 
-    public void setLegalMoves() {
+    public void setPseudoLegalMoves() {
         int potentialSpace = 0;
+        
         // up right diagonal
         int pointer = position;
-        while (getRow(pointer) > 0 && getColumn(pointer) < 7) // while the row below the 0 row and the column is left of
+        while (getRow(pointer) > 0 && getColumn(pointer) < 7) // while the row is below the 0 row and the column is left of
                                                               // 7 row
         {
             potentialSpace = pointer + up() + right(1);
             if (game[potentialSpace] == null) // if nothing is to the right and up, add it. Move pointer to that space
                                               // now.
             {
-                legalMoves.add(potentialSpace);
+                pseudoLegalMoves.add(potentialSpace);
                 pointer = potentialSpace;
             } else // if something is in game[potentialSpace]...
             {
-                // this if statement is not technically necessary, sine cleanMoves() should
+                // this if statement is not technically necessary, since cleanMoves() should
                 // check this. but just to make sure.
                 if (game[potentialSpace].getColor() != color) // if the piece is a different color, add it as a possible
                                                               // move
-                    legalMoves.add(potentialSpace);
+                    pseudoLegalMoves.add(potentialSpace);
                 break; // get out of the while loop. We finished.
             }
         }
@@ -41,11 +42,11 @@ public class Bishop extends Piece {
         {
             potentialSpace = pointer + up() + left(1);
             if (game[potentialSpace] == null) {
-                legalMoves.add(potentialSpace);
+                pseudoLegalMoves.add(potentialSpace);
                 pointer = potentialSpace;
             } else {
                 if (game[potentialSpace].getColor() != color)
-                    legalMoves.add(potentialSpace);
+                    pseudoLegalMoves.add(potentialSpace);
                 break;
             }
         }
@@ -56,11 +57,11 @@ public class Bishop extends Piece {
         {
             potentialSpace = pointer + down() + right(1);
             if (game[potentialSpace] == null) {
-                legalMoves.add(potentialSpace);
+                pseudoLegalMoves.add(potentialSpace);
                 pointer = potentialSpace;
             } else {
                 if (game[potentialSpace].getColor() != color)
-                    legalMoves.add(potentialSpace);
+                    pseudoLegalMoves.add(potentialSpace);
                 break;
             }
         }
@@ -71,16 +72,13 @@ public class Bishop extends Piece {
         {
             potentialSpace = pointer + down() + left(1);
             if (game[potentialSpace] == null) {
-                legalMoves.add(potentialSpace);
+                pseudoLegalMoves.add(potentialSpace);
                 pointer = potentialSpace;
             } else {
                 if (game[potentialSpace].getColor() != color)
-                    legalMoves.add(potentialSpace);
+                    pseudoLegalMoves.add(potentialSpace);
                 break;
             }
         }
-
-        // make sure we all good
-        cleanMoves();
     }
 }

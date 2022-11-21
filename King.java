@@ -1,94 +1,77 @@
 import javax.swing.*;
 import java.util.*;
 public class King extends Piece {
-    private boolean canCastle;
-    private boolean inCheck;
+    public boolean hasMoved = false;
     public King(int pos, boolean c) {
         super(pos, c);
-        canCastle = true;
         if (color)
             image = new ImageIcon("Pieces/WhiteKing.png");
         if (!color)
             image = new ImageIcon("Pieces/BlackKing.png");
     }
 
-    public void setCanCastle(boolean a)
-    {
-        canCastle = a; 
-    }
-
-    public void setLegalMoves() {
+    public void setPseudoLegalMoves() {
         // Cardinal Directions
         try {
-            legalMoves.add(position + forward(1));
-        } catch (IllegalStateException e) {
+            if (game[position + forward(1)] == null || game[position + forward(1)].color != color)
+                pseudoLegalMoves.add(position + forward(1));
+        } catch (Exception e) {
         }
         try {
-            legalMoves.add(position + backward(1));
-        } catch (IllegalStateException e) {
+            if (game[position + backward(1)] == null || game[position + backward(1)].color != color)
+                pseudoLegalMoves.add(position + backward(1));
+        } catch (Exception e) {
         }
         try {
-            legalMoves.add(position + left(1));
-        } catch (IllegalStateException e) {
+            if (game[position + left(1)] == null || game[position + left(1)].color != color)
+                pseudoLegalMoves.add(position + left(1));
+        } catch (Exception e) {
         }
         try {
-            if (game[position + right(1)] == null || game[position + right(1)].getColor() != color)
-            {
-                legalMoves.add(position + right(1));
-            } 
-        } catch (IllegalStateException e) {
+            if (game[position + right(1)] == null || game[position + right(1)].color != color)
+                pseudoLegalMoves.add(position + right(1));
+        } catch (Exception e) {
         }
         // Diagonal Directions
         
         try {
-            if (game[position + forward(1) + right(1)] == null || game[position + forward(1) + right(1)].getColor() != color)
-            {
-                legalMoves.add(position + forward(1) + right(1));
-            }
-        } catch (IllegalStateException e) {
+            if (game[position + forward(1) + right(1)] == null || game[position + forward(1) + right(1)].color != color)
+                pseudoLegalMoves.add(position + forward(1) + right(1));
+        } catch (Exception e) {
         }
         try {
-            legalMoves.add(position + forward(1) + left(1));
-        } catch (IllegalStateException e) {
+            if (game[position + forward(1) + left(1)] == null || game[position + forward(1) + left(1)].color != color)
+                pseudoLegalMoves.add(position + forward(1) + left(1));
+        } catch (Exception e) {
         }
         try {
-            legalMoves.add(position + backward(1) + right(1));
-        } catch (IllegalStateException e) {
+            if (game[position + backward(1) + right(1)] == null || game[position + backward(1) + right(1)].color != color)
+                pseudoLegalMoves.add(position + backward(1) + right(1));
+        } catch (Exception e) {
         }
         try {
-            legalMoves.add(position + backward(1) + left(1));
-        } catch (IllegalStateException e) {
+            if (game[position + backward(1) + left(1)] == null || game[position + backward(1) + left(1)].color != color)
+                pseudoLegalMoves.add(position + backward(1) + left(1));
+        } catch (Exception e) {
         }
-
+        
         // castling
-        if (canCastle) {
-            // do something here...
-        }
-
-        /*
-         * we will somehow need to ensure with each move that the king is not put in
-         * check by his own side,
-         */
-
-        // only keeps moves where pieces in legalMoves list are of the opposite color
-        cleanMoves();
-    
+        // if the king can castle in a direction, add the appropriate castling square to its moves
+        if(color && canCastleKingSide())
+            pseudoLegalMoves.add(62); // white kingside castling square is 62
+        if(!color && canCastleKingSide())
+            pseudoLegalMoves.add(6); // black kingside castling square is 6 
+        if(color && canCastleQueenSide())
+            pseudoLegalMoves.add(58); // white queenside castling square is 58
+        if(!color && canCastleQueenSide())
+            pseudoLegalMoves.add(2); // black queenside castling square is 2
     }
     
     // returns true if the king is in check(any legal move is a capture of our king)
-    boolean isInCheck()
+    public boolean isInCheck()
     {
-        if(this.color)
-        {
-            if(ChessBoard.blackSqaures().contains(position))
-                return true;
-            return false;
-        }
-        else
-        {
-            if(ChessBoard.whiteSqaures().contains(position))
-                return true;
-            return false;
-        }
+        if(color)
+            return ChessBoard.blackSquares().contains(position);
+        return ChessBoard.whiteSquares().contains(position);
     }
-}
+
