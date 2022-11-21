@@ -58,6 +58,14 @@ public class ChessBoard extends JFrame {
 
     Thread whiteTimeThread;
     Thread blackTimeThread;
+    public void updateThreads(boolean co)
+    {
+        if (co)
+        {
+            
+        }
+    }
+
     public void updateVisible()
     {
         options.setLayout(new GridLayout(2, 1, 0, 500));
@@ -142,7 +150,7 @@ public class ChessBoard extends JFrame {
                     }
             } );
             timer.start();
-            timer.setRepeats(false);
+            timer.setRepeats(true);
             color = c;
         }
 

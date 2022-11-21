@@ -75,6 +75,17 @@ public /* Abstract? */ class Piece {
             game[position] = null; // set old spot to null because nothing is there
             position = destination; // update position variable for the piece to be destination
             turn = !turn; // changes which sides turn it is
+            if (turn)
+            {
+                whiteTimerThread.resume();
+                blackTimerThread.suspend();
+            }
+            else
+            {
+                whiteTimerThread.suspend();
+                blackTimerThread.resume();
+            }
+            
             if (this instanceof King || this instanceof Rook)
                 this.setCanCastle(false);
             return true;
