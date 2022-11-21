@@ -1,5 +1,5 @@
 import javax.swing.*;
-import javax.swing.*;
+import javax.swing.Timer;
 import javax.swing.event.MouseInputAdapter;
 import java.awt.*;
 import java.awt.event.*;
@@ -8,21 +8,23 @@ import java.util.*;
 public class ChessBoard extends JFrame {
 
     static JPanel[] squares = new JPanel[64]; // what the GUI actually displays
-    static Piece[] game = Piece.game; // computers internal representation of the board 
-    
+    static Piece[] game = Piece.game; // computers internal representation of the board
+
     static Color dark = new Color(150, 111, 67); // color for dark squares
     static Color light = new Color(242, 210, 173); // color for light squares
     static Color selected = Color.decode("#a5e68c"); // color to display where a selected piece can move
-    
+
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
-    
-    static King whiteKing, blackKing; // static variables for the kings so that we can easily refer to them when looking at Checks
-    JPanel board options; 
+
+    static King whiteKing, blackKing; // static variables for the kings so that we can easily refer to them when
+                                      // looking at Checks
+    JPanel board, options;
 
     Piece selectedPiece = null;
-    
+
     public ChessBoard() {
         board = new JPanel();
+        options = new JPanel();
         board.setLayout(new GridLayout(8, 8));
 
         addMouseListener(new Mouse());
@@ -31,8 +33,6 @@ public class ChessBoard extends JFrame {
             squares[x].setSize((int) (getWidth() / 8.0), (int) (getHeight() / 8.0));
         }
         Container win = getContentPane();
-
-        
 
         win.setLayout(new BorderLayout());
 
@@ -49,11 +49,10 @@ public class ChessBoard extends JFrame {
             }
         }
 
-
         win.add(board, BorderLayout.CENTER);
         win.add(options, BorderLayout.EAST);
 
-
+        setUpOptions();
         loadPosition(startFen); // loads the starting position
         displayGame();
 
@@ -66,19 +65,25 @@ public class ChessBoard extends JFrame {
 
     public static void updateThreads(boolean co) {
         if (co) {
-            whiteTimeThread.stop();
+            whiteTimeThread = null;
             blackTimeThread.start();
 
         } else {
+            blackTimeThread = null;
             whiteTimeThread.start();
-            blackTimeThread.stop();
+
         }
     }
 
     public void updateVisible() {
-        options.setLayout(new GridLayout(2, 1, 0, 500));
+        options.setLayout(new GridLayout(3, 1, 0, 100));
         JPanel whiteTime = new JPanel();
         JPanel blackTime = new JPanel();
+        forefit = new JButton("Forefit");
+        forefit.setBackground(Color.decode("#7d5d3b"));
+        forefit.setBorderPainted(false);
+        forefit.setFocusPainted(false);
+        forefit.addActionListener(new OptionsPaneButtons());
 
         Timers whiteTimer = new Timers(true);
         Timers blackTimer = new Timers(false);
@@ -89,14 +94,16 @@ public class ChessBoard extends JFrame {
         whiteTime.add(whiteTimer);
         blackTime.add(blackTimer);
 
+        options.setBackground(Color.decode("#c9a885"));
         options.add(blackTime);
+        options.add(forefit);
         options.add(whiteTime);
         this.setVisible(true);
         whiteTimeThread.start();
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty;
+    static JButton five, ten, fifteen, thirty, forefit;
     static int startTime;
     JFrame frame;
 
@@ -137,9 +144,16 @@ public class ChessBoard extends JFrame {
                 startTime = 15;
             if (e.getSource() == thirty)
                 startTime = 30;
+            if (e.getSource() == forefit)
+                forefit();
             frame.setVisible(false);
             updateVisible();
         }
+    }
+
+    public void forefit() {
+        boolean current = Piece.getTurn();
+        win(!current);
     }
 
     public class Timers extends JLabel implements Runnable {
@@ -185,6 +199,8 @@ public class ChessBoard extends JFrame {
 
         public void run() {
             while (true) {
+                whiteTimeThread = new Thread();
+                blackTimeThread = new Thread();
                 if (Piece.getTurn() == color) {
                     setRemainingTime(remainingTime - 1000);
                     try {
@@ -291,19 +307,23 @@ public class ChessBoard extends JFrame {
             } else {
                 if (Character.isDigit(c)) { // if there's an integer
                     column += Character.getNumericValue(c); // skip that number of spaces (columns in that row)
-                } else { // if there's a letter add that piece to our current location on the board [row * 8 + column] converts the columns and rows to the index of that square
-                    // K = WhiteKing, Q = WhiteQueen, B = WhiteBishop,  N = WhiteKnight, R = WhiteRook, P = WhitePawn
-                    // k = BlackKing, q = BlackQueen, b = BlackBishop, n = BlackKnight, r = BlackRook, p = BlackPawn
+                } else { // if there's a letter add that piece to our current location on the board [row
+                         // * 8 + column] converts the columns and rows to the index of that square
+                    // K = WhiteKing, Q = WhiteQueen, B = WhiteBishop, N = WhiteKnight, R =
+                    // WhiteRook, P = WhitePawn
+                    // k = BlackKing, q = BlackQueen, b = BlackBishop, n = BlackKnight, r =
+                    // BlackRook, p = BlackPawn
                     switch (c) {
                         case 'k':
-                            blackKing = new King(row * 8 + column, false); // give Black's king a name so we can refer to it later
+                            blackKing = new King(row * 8 + column, false); // give Black's king a name so we can refer
+                                                                           // to it later
                             game[row * 8 + column] = blackKing;
                             break;
 
                         case 'q':
                             game[row * 8 + column] = new Queen(row * 8 + column, false);
                             break;
-                            
+
                         case 'b':
                             game[row * 8 + column] = new Bishop(row * 8 + column, false);
                             break;
@@ -321,7 +341,8 @@ public class ChessBoard extends JFrame {
                             break;
 
                         case 'K':
-                            whiteKing = new King(row * 8 + column, true); // give White's king a name so that we can refer to it later
+                            whiteKing = new King(row * 8 + column, true); // give White's king a name so that we can
+                                                                          // refer to it later
                             game[row * 8 + column] = whiteKing;
                             break;
 
@@ -350,9 +371,9 @@ public class ChessBoard extends JFrame {
         }
     }
 
-    // acessor methods for the Kings so that they may be easily referenced in King.isInCheck
-    public static King getWhiteKing()
-    {
+    // acessor methods for the Kings so that they may be easily referenced in
+    // King.isInCheck
+    public static King getWhiteKing() {
 
         return whiteKing;
     }
@@ -362,21 +383,27 @@ public class ChessBoard extends JFrame {
     }
 
     // returns an ArrayList of all the sqaures that black attacks
-    public static ArrayList<Integer> blackSquares()
-    {
+    public static ArrayList<Integer> blackSquares() {
         ArrayList<Integer> s = new ArrayList<Integer>(); // list of all squares black attacks
-        for(int x = 0; x < 64; x++) // loop through all the squares on the board
+        for (int x = 0; x < 64; x++) // loop through all the squares on the board
         {
             // if there's a piece there and its black and its not a pawn
-            if(game[x] != null && !game[x].getColor() && !(game[x] instanceof Pawn))
-            {
+            if (game[x] != null && !game[x].getColor() && !(game[x] instanceof Pawn)) {
                 s.addAll(game[x].getPseudoLegalMoves());
-            }else if(game[x] != null && !game[x].getColor() && game[x] instanceof Pawn) // else if there's a piece and its black and its a pawn
+            } else if (game[x] != null && !game[x].getColor() && game[x] instanceof Pawn) // else if there's a piece and
+                                                                                          // its black and its a pawn
             {
-                 // pawns only control the sqaures diagonally infront of them, so the squares they attack must be added differently from the rest of the pieces
-                 // try catch so that we don't move out of bounds
-                 try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1));}catch(IllegalStateException e){} // add the pawns position plus forward and right/left
-                 try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));}catch(IllegalStateException e){}
+                // pawns only control the sqaures diagonally infront of them, so the squares
+                // they attack must be added differently from the rest of the pieces
+                // try catch so that we don't move out of bounds
+                try {
+                    s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1));
+                } catch (IllegalStateException e) {
+                } // add the pawns position plus forward and right/left
+                try {
+                    s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));
+                } catch (IllegalStateException e) {
+                }
 
             }
         }
@@ -385,30 +412,49 @@ public class ChessBoard extends JFrame {
     }
 
     // returns an ArrayList of all of the squares that white attacks
-    public static ArrayList<Integer> whiteSquares()
-    {
+    public static ArrayList<Integer> whiteSquares() {
         ArrayList<Integer> s = new ArrayList<Integer>(); // array list of all squares that white attacks
-        for(int x = 0; x < 64; x++) // loop through all the squares on the board
+        for (int x = 0; x < 64; x++) // loop through all the squares on the board
         {
             // if there's a piece there and its white and its not a pawn
-            if(game[x] != null && game[x].getColor() && !(game[x] instanceof Pawn))
-            {
+            if (game[x] != null && game[x].getColor() && !(game[x] instanceof Pawn)) {
                 s.addAll(game[x].getPseudoLegalMoves());
-            }else if(game[x] != null && game[x].getColor() && game[x] instanceof Pawn) // else if there's a piece and its white and its a pawn
+            } else if (game[x] != null && game[x].getColor() && game[x] instanceof Pawn) // else if there's a piece and
+                                                                                         // its white and its a pawn
             {
-                 // pawns only control the sqaures diagonally infront of them, so the squares they attack must be added differently from the rest of the pieces
-                 // try catch so that we don't move out of bounds
-                 try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1));}catch(IllegalStateException e){} // add the pawns position plus forward and right/left
-                 try{s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));}catch(IllegalStateException e){}
+                // pawns only control the sqaures diagonally infront of them, so the squares
+                // they attack must be added differently from the rest of the pieces
+                // try catch so that we don't move out of bounds
+                try {
+                    s.add(game[x].getPosition() + game[x].forward(1) + game[x].right(1));
+                } catch (IllegalStateException e) {
+                } // add the pawns position plus forward and right/left
+                try {
+                    s.add(game[x].getPosition() + game[x].forward(1) + game[x].left(1));
+                } catch (IllegalStateException e) {
+                }
 
             }
         }
 
         return s;
     }
+
     public static void main(String args[]) {
         new ChessBoard();
-        new PromotionMenu(true); // create the promotion menu. Will be visible when needed and invisible when it's not
+        white = new PromotionMenu(true); // create the promotion menus. Will be visible when needed and
+                                         // invisible when they're not
+        black = new PromotionMenu(false);
 
+    }
+
+    public static PromotionMenu white, black;
+
+    public void win(boolean c) {
+        if (c) // If white wins
+            JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
+        else
+            JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
+        Piece.endGame();
     }
 }

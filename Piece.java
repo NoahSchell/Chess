@@ -1,4 +1,6 @@
 import javax.swing.*;
+import java.util.*;
+
 public /* Abstract? */ class Piece {
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
@@ -7,9 +9,14 @@ public /* Abstract? */ class Piece {
     protected int position;
     protected boolean color, captured, hasMoved = false;
     protected static boolean turn = true; // white goes first
-    
+
     protected ArrayList<Integer> pseudoLegalMoves;
     protected ImageIcon image;
+    private static boolean endGame = false;
+
+    public static void endGame() {
+        endGame = true;
+    }
 
     public Piece(int x, boolean c) {
         position = x;
@@ -18,34 +25,35 @@ public /* Abstract? */ class Piece {
         pseudoLegalMoves = new ArrayList<Integer>();
     }
 
-    // this method is intentionally blank, and is overridden in all subclasses. It's purpose is to determine set the pieces PseudoLegalMoves (meaning checks are ignored)
-    public void setPseudoLegalMoves(){}
-    
+    // this method is intentionally blank, and is overridden in all subclasses. It's
+    // purpose is to determine set the pieces PseudoLegalMoves (meaning checks are
+    // ignored)
+    public void setPseudoLegalMoves() {
+    }
+
     // accessor methods
-    
+
     // returns a list of the pieces PseudoLegalMoves (checks are ignored)
-    public ArrayList<Integer> getPseudoLegalMoves() 
-    {
+    public ArrayList<Integer> getPseudoLegalMoves() {
         pseudoLegalMoves.clear(); // clear everything
-        setPseudoLegalMoves(); //set everything
+        setPseudoLegalMoves(); // set everything
         return pseudoLegalMoves;
     }
 
-    public ImageIcon getImage()
-    {
+    public ImageIcon getImage() {
         return image;
     }
-        
-    // returns pseudoLegalMoveslegalMoves after each move has been filtered. These are the pieces ACTUAL legal moves in the position
+
+    // returns pseudoLegalMoveslegalMoves after each move has been filtered. These
+    // are the pieces ACTUAL legal moves in the position
     public ArrayList<Integer> getLegalMoves() {
         pseudoLegalMoves.clear(); // clear everything
-        setPseudoLegalMoves(); //set everything
+        setPseudoLegalMoves(); // set everything
         cleanMoves();
         return pseudoLegalMoves;
     }
-    
-    public static boolean getTurn()
-    {
+
+    public static boolean getTurn() {
         return turn;
     }
 
@@ -65,107 +73,104 @@ public /* Abstract? */ class Piece {
     public void capture() {
         captured = true;
     }
-    
+
     // if it's legal, this method moves a piece to the destination index in game[].
     // returns success status.
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
+        if (endGame)
+            return false;
         ArrayList<Integer> moves = getLegalMoves();
         if (getColor() != turn) // if the piece you want to move isn't turn, get out of here
-            return false; 
+            return false;
         if (moves.contains(destination)) { // if the destination is a legal move
-            // if the king is being moved to a castling square and it can castle in that direction
-            if(color && this instanceof King && destination == 62 && canCastleKingSide())
+            // if the king is being moved to a castling square and it can castle in that
+            // direction
+            if (color && this instanceof King && destination == 62 && canCastleKingSide())
                 castleKingSide(); // move the rook into it's correct position
-            if(!color && this instanceof King && destination == 6 && canCastleKingSide())    
+            if (!color && this instanceof King && destination == 6 && canCastleKingSide())
                 castleKingSide();
-            if(color && this instanceof King && destination == 58 && canCastleQueenSide())
+            if (color && this instanceof King && destination == 58 && canCastleQueenSide())
                 castleQueenSide();
-            if(!color && this instanceof King && destination == 2 && canCastleQueenSide())    
+            if (!color && this instanceof King && destination == 2 && canCastleQueenSide())
                 castleQueenSide();
-            
-            game[destination] = game[position]; // set the piece at destination = piece at 
+
+            game[destination] = game[position]; // set the piece at destination = piece at
             game[position] = null; // set old spot to null because nothing is there
-            position = destination; // update position variable for the piece to be destination 
-            
-            
+            position = destination; // update position variable for the piece to be destination
+
             turn = !turn; // changes which sides turn it is
 
             hasMoved = true;
 
-            if (turn)
-            {
+            if (turn) {
                 ChessBoard.updateThreads(true);
-            }
-            else
-            {
+            } else {
                 ChessBoard.updateThreads(false);
             }
 
-            
             // if a pawn was promoted
-            if(this instanceof Pawn && (destination >= 0 && destination <= 8 || destination >= 56 && destination <= 63))
-                PromotionMenu.frame.setVisible(true); // display the promotion menu!   
-                
+            if (this instanceof Pawn && color && destination >= 0 && destination <= 8)
+                ChessBoard.white.frame.setVisible(true); // display the promotion menu!
+            else if (this instanceof Pawn && !color && destination >= 56 && destination <= 6)
+                ChessBoard.black.frame.setVisible(true);
             return true;
         }
         return false;
     }
-    
+
     // returns true if the king can castle kingside
-    public boolean canCastleKingSide()
-    {
-        if(color && !hasMoved && game[62] == null && game[61] == null && game[63] instanceof Rook && game[63].color && !game[63].hasMoved)
+    public boolean canCastleKingSide() {
+        if (color && !hasMoved && game[62] == null && game[61] == null && game[63] instanceof Rook && game[63].color
+                && !game[63].hasMoved)
             return true;
-        if(!color && !hasMoved && game[5] == null && game[6] == null && game[7] instanceof Rook && !game[7].color && !game[7].hasMoved)
+        if (!color && !hasMoved && game[5] == null && game[6] == null && game[7] instanceof Rook && !game[7].color
+                && !game[7].hasMoved)
             return true;
         return false;
     }
-    
+
     // returns true if the king can castle queenside
-    public boolean canCastleQueenSide()
-    {
-        if(color && !hasMoved && game[57] == null && game[58] == null && game[59] == null && game[56] instanceof Rook && game[56].color && !game[56].hasMoved)
+    public boolean canCastleQueenSide() {
+        if (color && !hasMoved && game[57] == null && game[58] == null && game[59] == null && game[56] instanceof Rook
+                && game[56].color && !game[56].hasMoved)
             return true;
-        if(!color && !hasMoved && game[1] == null && game[2] == null && game[3] == null && game[0] instanceof Rook && !game[0].color && !game[0].hasMoved)
+        if (!color && !hasMoved && game[1] == null && game[2] == null && game[3] == null && game[0] instanceof Rook
+                && !game[0].color && !game[0].hasMoved)
             return true;
         return false;
     }
-    
-    // moves the rook to it's correct position after the king moves to its kingside castling square
-    public void castleKingSide()
-    {
-        if(color)
-        {
+
+    // moves the rook to it's correct position after the king moves to its kingside
+    // castling square
+    public void castleKingSide() {
+        if (color) {
             game[61] = game[63];
             game[63] = null;
             game[61].position = 61;
         }
-        if(!color)
-        {
+        if (!color) {
             game[5] = game[7];
             game[7] = null;
             game[5].position = 5;
         }
     }
-    
-    // moves the rook to it's correct position after the king moves to its queenside castling square
-    public void castleQueenSide()
-    {
-        if(color)
-        {
+
+    // moves the rook to it's correct position after the king moves to its queenside
+    // castling square
+    public void castleQueenSide() {
+        if (color) {
             game[59] = game[56];
             game[56] = null;
             game[59].position = 59;
         }
-        if(!color)
-        {
+        if (!color) {
             game[3] = game[0];
             game[0] = null;
             game[3].position = 3;
         }
     }
-    
+
     // transformation methods. they return mathematical transformations necessary to
     // perform the move described in the method name.
     public static int up() {
@@ -211,9 +216,8 @@ public /* Abstract? */ class Piece {
     {
         return n / 8;
     }
-    
-    public static void changeTurn()
-    {
+
+    public static void changeTurn() {
         turn = !turn;
     }
 
@@ -236,72 +240,75 @@ public /* Abstract? */ class Piece {
             throw new IllegalStateException("This piece cannot move to the left!");
         return -n;
     }
-    
-    // filters through all of the PseudoLegal moves and removes the ones that are Illegal because of checks
-    public void cleanMoves()
-    {
-        if(color != turn || getPseudoLegalMoves().isEmpty()) // if the piece we are looking at is not turn, or it has no pseudolegal moves, we do not need to clean it's moves
+
+    // filters through all of the PseudoLegal moves and removes the ones that are
+    // Illegal because of checks
+    public void cleanMoves() {
+        if (color != turn || getPseudoLegalMoves().isEmpty()) // if the piece we are looking at is not turn, or it has
+                                                              // no pseudolegal moves, we do not need to clean it's
+                                                              // moves
             return; // so get the heck out of here
         // this speeds up the filtration process ALOT
-            
-        Piece [] copy = game.clone(); // make a copy of the current position so that we can reset the game after we try each move
-        King k = new King(0,true); // creates temp variable for the king that is relavent to the cleaning (the one who's color matches turn)
+
+        Piece[] copy = game.clone(); // make a copy of the current position so that we can reset the game after we
+                                     // try each move
+        King k = new King(0, true); // creates temp variable for the king that is relavent to the cleaning (the one
+                                    // who's color matches turn)
         ArrayList<Integer> toBeRemoved = new ArrayList<Integer>();
-        
-        if(turn) // if it's whites turn
+
+        if (turn) // if it's whites turn
             k = ChessBoard.getWhiteKing(); // get the white king
         else // if it's blacks turn
             k = ChessBoard.getBlackKing(); // get the black king
-        
+
         // loop through each of the pieces PseudoLegalMoves
-        for(int x = 0; x < getPseudoLegalMoves().size(); x++)
-        {
+        for (int x = 0; x < getPseudoLegalMoves().size(); x++) {
             int target = getPseudoLegalMoves().get(x), original = position; // target = the move
-            
+
             // play the move
             game[target] = game[position];
             game[position] = null;
             position = target;
-            
-            if(k.isInCheck()) // if the king is in check
+
+            if (k.isInCheck()) // if the king is in check
             {
                 toBeRemoved.add(target); // add the move to the list of moves that need to be removed
             }
-            
+
             // undo the move using copy
             game[original] = copy[original];
             game[target] = copy[target];
             position = original;
         }
-        
+
         // if the current piece is a king, don't allow it to castle out of check
-        if(color && this instanceof King && position == 60 && ((King)this).isInCheck()) // if it is on it's starting square, and it is in check, don't allow it to castle
+        if (color && this instanceof King && position == 60 && ((King) this).isInCheck()) // if it is on it's starting
+                                                                                          // square, and it is in check,
+                                                                                          // don't allow it to castle
         {
             toBeRemoved.add(62);
             toBeRemoved.add(58);
         }
-        if(!color && this instanceof King && position == 4 && ((King)this).isInCheck())
-        {
+        if (!color && this instanceof King && position == 4 && ((King) this).isInCheck()) {
             toBeRemoved.add(6);
             toBeRemoved.add(2);
         }
-        
+
         // if the current piece is a king, don't allow it to castle through check
-        if(color && this instanceof King && position == 60) // if it is a white king and it's on its starting square
+        if (color && this instanceof King && position == 60) // if it is a white king and it's on its starting square
         {
-            if(toBeRemoved.contains(61)) // if moving one square to the right is illegal
+            if (toBeRemoved.contains(61)) // if moving one square to the right is illegal
                 toBeRemoved.add(62); // then castling in that direction is also illegal
-            if(toBeRemoved.contains(59))
+            if (toBeRemoved.contains(59))
                 toBeRemoved.add(59);
         }
-        if(!color && this instanceof King && position == 4)
-        {
-            if(toBeRemoved.contains(5))
+        if (!color && this instanceof King && position == 4) {
+            if (toBeRemoved.contains(5))
                 toBeRemoved.add(6);
-            if(toBeRemoved.contains(3))
+            if (toBeRemoved.contains(3))
                 toBeRemoved.add(2);
         }
-        
+
         pseudoLegalMoves.removeAll(toBeRemoved); // remove all of the moves that were determined to be illegal
     }
 }

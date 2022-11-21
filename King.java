@@ -75,3 +75,5 @@ public class King extends Piece {
         return ChessBoard.whiteSquares().contains(position);
     }
 
+}
+
