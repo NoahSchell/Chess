@@ -1,4 +1,3 @@
-import javax.sound.*;
 import javax.sound.sampled.*;
 import javax.swing.*;
 import java.util.*;

@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.util.*;
 public class King extends Piece {
     public boolean hasMoved = false;
     public King(int pos, boolean c) {
