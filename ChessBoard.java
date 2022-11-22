@@ -182,7 +182,10 @@ public class ChessBoard extends JFrame {
             if (e.getSource() == forefit)
                 forefit();
             if (e.getSource() == fen)
-                getFen();
+            {
+                String f = getFen();
+                JOptionPane.showInputDialog(null, "Current Position", f);
+            }
             if (e.getSource() == notation)
                 showNotation();
             if (e.getSource() == back)
@@ -198,17 +201,16 @@ public class ChessBoard extends JFrame {
     {
         if (!direction && Piece.currentGame > 0) // move backward
             try {
-                game = Piece.gameHistory.get(Piece.currentGame-1);
                 Piece.currentGame--;
                 System.out.println("ran");
             } catch(IndexOutOfBoundsException e) {System.out.println("uh oh");}
         if (direction && Piece.currentGame < Piece.gameHistory.size() - 1) // move forward
             try {
-                game = Piece.gameHistory.get(Piece.currentGame+1);
                 Piece.currentGame++;
                 System.out.println("ran");
             } catch(IndexOutOfBoundsException e) {System.out.println("uh oh");} 
-        displayGame();   
+        loadPosition(Piece.gameHistory.get(Piece.currentGame));
+        displayGame();
     }
 
     public void showNotation()
@@ -321,6 +323,7 @@ public class ChessBoard extends JFrame {
     public static void displayGame() {
         for (int x = 0; x < 64; x++) { // redisplay game
             squares[x].removeAll();
+            squares[x].revalidate();
             if (game[x] != null) {
                 JLabel temp = new JLabel(game[x].getImage());
                 squares[x].add(temp);
@@ -376,6 +379,7 @@ public class ChessBoard extends JFrame {
         }
 
     }
+    
 
     public static void resetColors() {
         int z = 0;
@@ -403,7 +407,7 @@ public class ChessBoard extends JFrame {
     }
 
     // loads a position into the game array from a FEN string
-    public static void loadPosition(String fen) {
+    public void loadPosition(String fen) {
         int column = 0, row = 0; // we start at position 0
         for (int x = 0; x < fen.length(); x++) { // loops through all characters in the FEN string
             char c = fen.charAt(x);
@@ -475,6 +479,7 @@ public class ChessBoard extends JFrame {
                 }
             }
         }
+        Piece.gameHistory.add(getFen());
     }
 
     // acessor methods for the Kings so that they may be easily referenced in
@@ -550,7 +555,7 @@ public class ChessBoard extends JFrame {
         new ChessBoard();
     }
 
-    public void getFen()
+    public static String getFen()
     {
         String fen = "";
         int empty = 0; 
@@ -572,7 +577,7 @@ public class ChessBoard extends JFrame {
                 fen += game[x].getFenLetter();
             }
         }
-        JOptionPane.showInputDialog(null, "Current Position", fen);
+        return fen;
     }
 
     public static void win(boolean c) {

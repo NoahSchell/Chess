@@ -7,7 +7,7 @@ import java.awt.*;
 
 public /* Abstract? */ class Piece {
     public static LinkedList<String> notation = new LinkedList<String>();
-    public static LinkedList<Piece []> gameHistory = new LinkedList<Piece []>(); // will need to be worked on. 
+    public static LinkedList<String> gameHistory = new LinkedList<String>(); // will need to be worked on. 
                                                                              // what if move happens on previous state? stack.pop()?
     public static int currentGame = 0; 
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
@@ -92,6 +92,13 @@ public /* Abstract? */ class Piece {
     // returns success status.
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
+        if (currentGame < gameHistory.size() - 1)
+        {
+            JOptionPane.showMessageDialog(null, "Go back to the current position to move", "Unable to move", JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
+        
+        
         String m = "";
         if (! (this instanceof Pawn))
             m += Character.toLowerCase((char)getFenLetter()); // the move starts with the fen letter (lower case) if not a pawn
@@ -118,11 +125,13 @@ public /* Abstract? */ class Piece {
                 m += "x"; // add an x to the move
             game[destination] = game[position]; // set the piece at destination = piece at
             game[position] = null; // set old spot to null because nothing is there
-            gameHistory.add(game.clone()); // updates the history of the game
-            currentGame++;
             position = destination; // update position variable for the piece to be destination
 
             turn = !turn; // changes which sides turn it is
+
+
+            Piece.gameHistory.add(ChessBoard.getFen()); // updates the gameHistory 
+            Piece.currentGame++; // moves the counter
 
             hasMoved = true;
 
@@ -186,7 +195,6 @@ public /* Abstract? */ class Piece {
         f.pack();
         f.setVisible(true);
     }
-
     public class PromotionButtons implements ActionListener
     {
         public void actionPerformed(ActionEvent e)
