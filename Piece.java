@@ -7,6 +7,9 @@ import java.awt.*;
 
 public /* Abstract? */ class Piece {
     public static LinkedList<String> notation = new LinkedList<String>();
+    public static LinkedList<Object> gameHistory = new LinkedList<Object>(); // will need to be worked on. 
+                                                                             // what if move happens on previous state? stack.pop()?
+    public int currentGame = 0; 
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
     // each piece has a position, color (T = white, F = black), captured (F by
@@ -140,6 +143,8 @@ public /* Abstract? */ class Piece {
             clip.open(audioInputStream);
             clip.start();
             } catch (Exception e) {}
+            gameHistory.add(game);
+            currentGame++;
             return true;
         }
         return false;
