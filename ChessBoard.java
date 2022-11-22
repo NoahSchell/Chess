@@ -76,7 +76,7 @@ public class ChessBoard extends JFrame {
     }
 
     public void updateVisible() {
-        options.setLayout(new GridLayout(4, 1, 0, 75));
+        options.setLayout(new GridLayout(5, 1, 0, 70));
         JPanel whiteTime = new JPanel();
         JPanel blackTime = new JPanel();
         forefit = new JButton("Forefit");
@@ -89,6 +89,11 @@ public class ChessBoard extends JFrame {
         fen.setBorderPainted(false);
         fen.setFocusPainted(false);
         fen.addActionListener(new OptionsPaneButtons());
+        notation = new JButton("Get notation");
+        notation.setBackground(Color.decode("#7d5d3b"));
+        notation.setBorderPainted(false);
+        notation.setFocusPainted(false);
+        notation.addActionListener(new OptionsPaneButtons());
 
         Timers whiteTimer = new Timers(true);
         Timers blackTimer = new Timers(false);
@@ -102,6 +107,7 @@ public class ChessBoard extends JFrame {
         options.setBackground(Color.decode("#c9a885"));
         options.add(blackTime);
         options.add(forefit);
+        options.add(notation);
         options.add(fen);
         options.add(whiteTime);
         this.setVisible(true);
@@ -109,7 +115,7 @@ public class ChessBoard extends JFrame {
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty, forefit, fen;
+    static JButton five, ten, fifteen, thirty, forefit, fen, notation;
     static int startTime;
     JFrame frame;
 
@@ -162,10 +168,31 @@ public class ChessBoard extends JFrame {
                 forefit();
             if (e.getSource() == fen)
                 getFen();
+            if (e.getSource() == notation)
+                showNotation();
             frame.setVisible(false);
         }
     }
 
+    public void showNotation()
+    {
+        JFrame fr = new JFrame();
+        Container wi = fr.getContentPane();
+        String notat = "";
+        for (int x = 0; x < Piece.notation.size(); x++)
+        {
+            if (x % 2 == 0)
+                notat += (x/2 + 1 + ". ");
+            notat += Piece.notation.get(x) + "  ";
+            if (x % 2 == 1)
+                notat += "\n";
+        }
+        wi.add(new JTextArea(notat));
+        System.out.println(Piece.notation);
+
+        fr.pack();
+        fr.setVisible(true);
+    }
     public void forefit() {
         boolean current = Piece.getTurn();
         win(!current);

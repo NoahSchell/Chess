@@ -6,6 +6,7 @@ import java.io.File;
 import java.awt.*;
 
 public /* Abstract? */ class Piece {
+    public static LinkedList<String> notation = new LinkedList<String>();
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
     // each piece has a position, color (T = white, F = black), captured (F by
@@ -88,6 +89,9 @@ public /* Abstract? */ class Piece {
     // returns success status.
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
+        String m = "";
+        if (! (this instanceof Pawn))
+            m += Character.toLowerCase((char)getFenLetter()); // the move starts with the fen letter (lower case) if not a pawn
         if (endGame)
             return false;
         ArrayList<Integer> moves = getLegalMoves();
@@ -105,6 +109,8 @@ public /* Abstract? */ class Piece {
             if (!color && this instanceof King && destination == 2 && canCastleQueenSide())
                 castleQueenSide();
 
+            if (game[destination] != null) // if this is a capture
+                m += "x"; // add an x to the move
             game[destination] = game[position]; // set the piece at destination = piece at
             game[position] = null; // set old spot to null because nothing is there
             position = destination; // update position variable for the piece to be destination
@@ -123,6 +129,11 @@ public /* Abstract? */ class Piece {
                 promote(true);
             else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63)
                 promote(false);
+
+
+            m += (char)(getColumn(destination) + 97);
+            m += 8 - getRow(destination);
+            notation.add(m);
             try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
             Clip clip = AudioSystem.getClip();
