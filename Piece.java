@@ -1,6 +1,9 @@
+import javax.sound.*;
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.util.*;
 import java.awt.event.*;
+import java.io.File;
 import java.awt.*;
 
 public /* Abstract? */ class Piece {
@@ -15,6 +18,12 @@ public /* Abstract? */ class Piece {
     protected ArrayList<Integer> pseudoLegalMoves;
     protected ImageIcon image;
     private static boolean endGame = false;
+    protected char fenLetter;
+
+    public char getFenLetter()
+    {
+        return fenLetter;
+    }
 
     public static void endGame() {
         endGame = true;
@@ -110,13 +119,17 @@ public /* Abstract? */ class Piece {
             } else {
                 ChessBoard.updateThreads(false);
             }
-
             // if a pawn was promoted
             if (this instanceof Pawn && color && destination >= 0 && destination <= 8)
                 promote(true);
             else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63)
                 promote(false);
-
+            try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+            } catch (Exception e) {}
             return true;
         }
         return false;

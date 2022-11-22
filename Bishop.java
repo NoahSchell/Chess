@@ -4,10 +4,14 @@ public class Bishop extends Piece {
 
     public Bishop(int x, boolean col) {
         super(x, col);
-        if (color)
+        if (color){
             image = new ImageIcon("Pieces/WhiteBishop.png");
-        if (!color)
+            fenLetter = 'B';
+        }
+        if (!color){
             image = new ImageIcon("Pieces/BlackBishop.png");
+            fenLetter = 'b';
+        }
     }
 
     public void setPseudoLegalMoves() {

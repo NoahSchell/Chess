@@ -76,7 +76,7 @@ public class ChessBoard extends JFrame {
     }
 
     public void updateVisible() {
-        options.setLayout(new GridLayout(3, 1, 0, 100));
+        options.setLayout(new GridLayout(4, 1, 0, 75));
         JPanel whiteTime = new JPanel();
         JPanel blackTime = new JPanel();
         forefit = new JButton("Forefit");
@@ -84,6 +84,11 @@ public class ChessBoard extends JFrame {
         forefit.setBorderPainted(false);
         forefit.setFocusPainted(false);
         forefit.addActionListener(new OptionsPaneButtons());
+        fen = new JButton("Get FEN String");
+        fen.setBackground(Color.decode("#7d5d3b"));
+        fen.setBorderPainted(false);
+        fen.setFocusPainted(false);
+        fen.addActionListener(new OptionsPaneButtons());
 
         Timers whiteTimer = new Timers(true);
         Timers blackTimer = new Timers(false);
@@ -97,13 +102,14 @@ public class ChessBoard extends JFrame {
         options.setBackground(Color.decode("#c9a885"));
         options.add(blackTime);
         options.add(forefit);
+        options.add(fen);
         options.add(whiteTime);
         this.setVisible(true);
         whiteTimeThread.start();
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty, forefit;
+    static JButton five, ten, fifteen, thirty, forefit, fen;
     static int startTime;
     JFrame frame;
 
@@ -136,24 +142,34 @@ public class ChessBoard extends JFrame {
 
     public class OptionsPaneButtons implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == five)
+            if (e.getSource() == five){
                 startTime = 5;
-            if (e.getSource() == ten)
+                updateVisible();
+            }
+            if (e.getSource() == ten){
                 startTime = 10;
-            if (e.getSource() == fifteen)
+                updateVisible();
+            }
+            if (e.getSource() == fifteen){
                 startTime = 15;
-            if (e.getSource() == thirty)
+                updateVisible();
+            }
+            if (e.getSource() == thirty){
                 startTime = 30;
+                updateVisible();
+            }
             if (e.getSource() == forefit)
                 forefit();
+            if (e.getSource() == fen)
+                getFen();
             frame.setVisible(false);
-            updateVisible();
         }
     }
 
     public void forefit() {
         boolean current = Piece.getTurn();
         win(!current);
+        Piece.endGame();
     }
 
     public class Timers extends JLabel implements Runnable {
@@ -210,7 +226,32 @@ public class ChessBoard extends JFrame {
                 }
             }
         }
+    }
 
+    public static void checkCheckmate()
+    {
+        // if it's white's turn and white is in check
+        if (Piece.getTurn() && whiteKing.isInCheck()) {
+            // loop through all spaces
+            for (int x = 0; x < 64; x++)
+                // check white's moves
+                if (game[x] != null && game[x].getColor() && !(game[x].getLegalMoves().isEmpty()))
+                    return; // if white has a move, get out
+            win(false); // otherwise black wins
+        }
+        // if its blacks turn and the black king is in check
+        else if (!Piece.getTurn() && blackKing.isInCheck()) {
+            // loop through all spaces
+            for (int y = 0; y < 64; y++)
+                // check blacks's moves
+                if (game[y] != null && !game[y].getColor() && !(game[y].getLegalMoves().isEmpty())) {
+                    System.out.println("run");
+                    return; // if black has a move, get out
+                    
+                }
+            win(true); // otherwise white wins
+        }
+        
     }
 
     public static void displayGame() {
@@ -222,6 +263,7 @@ public class ChessBoard extends JFrame {
                 squares[x].revalidate(); // the cornerstone of our program.
             }
         }
+        checkCheckmate();
     }
 
     // returns the index in squares[] or game[] of where the mouse is.
@@ -444,8 +486,33 @@ public class ChessBoard extends JFrame {
         new ChessBoard();
     }
 
+    public void getFen()
+    {
+        String fen = "";
+        int empty = 0; 
+        for (int x = 0; x < 64; x++)
+        {
+            if (x%8 == 0 && x !=0)
+            {
+                if (empty != 0)
+                    fen += empty;
+                empty = 0;
+                fen += "/";
+            }
+            if (game[x] == null)
+                empty ++;
+            else {
+                if (empty != 0)
+                    fen += empty;
+                empty = 0; 
+                fen += game[x].getFenLetter();
+            }
+        }
+        JOptionPane.showInputDialog(null, "Current Position", fen);
+    }
 
-    public void win(boolean c) {
+
+    public static void win(boolean c) {
         if (c) // If white wins
             JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
         else

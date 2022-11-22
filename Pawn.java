@@ -4,10 +4,14 @@ public class Pawn extends Piece {
 
     public Pawn(int pos, boolean c) {
         super(pos, c);
-        if (color)
+        if (color){
             image = new ImageIcon("Pieces/WhitePawn.png");
-        if (!color)
+            fenLetter = 'P';
+        }
+        if (!color){
             image = new ImageIcon("Pieces/BlackPawn.png");
+            fenLetter = 'p';
+        }
     }
 
     public void setPseudoLegalMoves() {

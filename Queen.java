@@ -4,10 +4,14 @@ public class Queen extends Piece {
 
     public Queen(int x, boolean col) {
         super(x, col);
-        if (color)
+        if (color){
             image = new ImageIcon("Pieces/WhiteQueen.png");
-        if (!color)
+            fenLetter = 'Q';
+        }
+        if (!color){
             image = new ImageIcon("Pieces/BlackQueen.png");
+            fenLetter = 'q';
+        }
 
     }
 
