@@ -442,13 +442,8 @@ public class ChessBoard extends JFrame {
 
     public static void main(String args[]) {
         new ChessBoard();
-        white = new PromotionMenu(true); // create the promotion menus. Will be visible when needed and
-                                         // invisible when they're not
-        black = new PromotionMenu(false);
-
     }
 
-    public static PromotionMenu white, black;
 
     public void win(boolean c) {
         if (c) // If white wins

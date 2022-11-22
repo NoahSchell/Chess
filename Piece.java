@@ -1,5 +1,7 @@
 import javax.swing.*;
 import java.util.*;
+import java.awt.event.*;
+import java.awt.*;
 
 public /* Abstract? */ class Piece {
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
@@ -111,12 +113,65 @@ public /* Abstract? */ class Piece {
 
             // if a pawn was promoted
             if (this instanceof Pawn && color && destination >= 0 && destination <= 8)
-                ChessBoard.white.frame.setVisible(true); // display the promotion menu!
-            else if (this instanceof Pawn && !color && destination >= 56 && destination <= 6)
-                ChessBoard.black.frame.setVisible(true);
+                promote(true);
+            else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63)
+                promote(false);
+
             return true;
         }
         return false;
+    }
+
+    static JButton rook, knight, bishop, queen; 
+    static JFrame f;
+    public void promote(boolean c)
+    {
+        f = new JFrame();
+        f.setLayout(new FlowLayout());
+        Container window = f.getContentPane();
+        if (c)
+        {
+            rook = new JButton(new ImageIcon("Pieces/WhiteRook.png"));
+            knight = new JButton(new ImageIcon("Pieces/WhiteKnight.png"));
+            bishop = new JButton(new ImageIcon("Pieces/WhiteBishop.png"));
+            queen = new JButton(new ImageIcon("Pieces/WhiteQueen.png"));
+        }
+        else
+        {
+            rook = new JButton(new ImageIcon("Pieces/BlackRook.png"));
+            knight = new JButton(new ImageIcon("Pieces/BlackKnight.png"));
+            bishop = new JButton(new ImageIcon("Pieces/BlackBishop.png"));
+            queen = new JButton(new ImageIcon("Pieces/BlackQueen.png"));
+        }
+        PromotionButtons listener = new PromotionButtons();
+        rook.addActionListener(listener );
+        knight.addActionListener(listener);
+        bishop.addActionListener(listener);
+        queen.addActionListener(listener);
+
+        window.add(rook);
+        window.add(knight);
+        window.add(bishop);
+        window.add(queen);
+        f.pack();
+        f.setVisible(true);
+    }
+
+    public class PromotionButtons implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            if (e.getSource() == rook)
+                game[position] = new Rook(position, getColor());
+            if (e.getSource() == knight)
+                game[position] = new Knight(position, getColor());
+            if (e.getSource() == bishop)
+                game[position] = new Bishop(position, getColor());
+            if (e.getSource() == queen)
+                game[position] = new Queen(position, getColor());
+            f.setVisible(false);
+            ChessBoard.displayGame();
+        }
     }
 
     // returns true if the king can castle kingside
