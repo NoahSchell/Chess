@@ -7,9 +7,9 @@ import java.awt.*;
 
 public /* Abstract? */ class Piece {
     public static LinkedList<String> notation = new LinkedList<String>();
-    public static LinkedList<Object> gameHistory = new LinkedList<Object>(); // will need to be worked on. 
+    public static LinkedList<Piece []> gameHistory = new LinkedList<Piece []>(); // will need to be worked on. 
                                                                              // what if move happens on previous state? stack.pop()?
-    public int currentGame = 0; 
+    public static int currentGame = 0; 
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
     // each piece has a position, color (T = white, F = black), captured (F by
@@ -20,7 +20,7 @@ public /* Abstract? */ class Piece {
 
     protected ArrayList<Integer> pseudoLegalMoves;
     protected ImageIcon image;
-    private static boolean endGame = false;
+    public static boolean endGame = false;
     protected char fenLetter;
 
     public char getFenLetter()
@@ -95,8 +95,10 @@ public /* Abstract? */ class Piece {
         String m = "";
         if (! (this instanceof Pawn))
             m += Character.toLowerCase((char)getFenLetter()); // the move starts with the fen letter (lower case) if not a pawn
-        if (endGame)
+        if (endGame){
+            JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
             return false;
+        }
         ArrayList<Integer> moves = getLegalMoves();
         if (getColor() != turn) // if the piece you want to move isn't turn, get out of here
             return false;
@@ -116,6 +118,8 @@ public /* Abstract? */ class Piece {
                 m += "x"; // add an x to the move
             game[destination] = game[position]; // set the piece at destination = piece at
             game[position] = null; // set old spot to null because nothing is there
+            gameHistory.add(game.clone()); // updates the history of the game
+            currentGame++;
             position = destination; // update position variable for the piece to be destination
 
             turn = !turn; // changes which sides turn it is
@@ -143,8 +147,6 @@ public /* Abstract? */ class Piece {
             clip.open(audioInputStream);
             clip.start();
             } catch (Exception e) {}
-            gameHistory.add(game);
-            currentGame++;
             return true;
         }
         return false;

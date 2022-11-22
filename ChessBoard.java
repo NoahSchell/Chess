@@ -76,7 +76,7 @@ public class ChessBoard extends JFrame {
     }
 
     public void updateVisible() {
-        options.setLayout(new GridLayout(5, 1, 0, 70));
+        options.setLayout(new GridLayout(6, 1, 0, 60));
         JPanel whiteTime = new JPanel();
         JPanel blackTime = new JPanel();
         forefit = new JButton("Forefit");
@@ -94,6 +94,20 @@ public class ChessBoard extends JFrame {
         notation.setBorderPainted(false);
         notation.setFocusPainted(false);
         notation.addActionListener(new OptionsPaneButtons());
+        back = new JButton("<");
+        back.setBackground(Color.decode("#7d5d3b"));
+        back.setBorderPainted(false);
+        back.setFocusPainted(false);
+        back.addActionListener(new OptionsPaneButtons());
+        forward = new JButton(">");
+        forward.setBackground(Color.decode("#7d5d3b"));
+        forward.setBorderPainted(false);
+        forward.setFocusPainted(false);
+        forward.addActionListener(new OptionsPaneButtons());
+        JPanel forback = new JPanel();
+        forback.setLayout(new GridLayout(1, 2));
+        forback.add(back);
+        forback.add(forward);
 
         Timers whiteTimer = new Timers(true);
         Timers blackTimer = new Timers(false);
@@ -109,13 +123,14 @@ public class ChessBoard extends JFrame {
         options.add(forefit);
         options.add(notation);
         options.add(fen);
+        options.add(forback);
         options.add(whiteTime);
         this.setVisible(true);
         whiteTimeThread.start();
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty, forefit, fen, notation;
+    static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward;
     static int startTime;
     JFrame frame;
 
@@ -170,8 +185,30 @@ public class ChessBoard extends JFrame {
                 getFen();
             if (e.getSource() == notation)
                 showNotation();
+            if (e.getSource() == back)
+                moveGame(false);
+            if (e.getSource() == forward)
+                moveGame(true);
             frame.setVisible(false);
         }
+    }
+
+    // true means move forward, false means move back
+    public void moveGame(boolean direction)
+    {
+        if (!direction && Piece.currentGame > 0) // move backward
+            try {
+                game = Piece.gameHistory.get(Piece.currentGame-1);
+                Piece.currentGame--;
+                System.out.println("ran");
+            } catch(IndexOutOfBoundsException e) {System.out.println("uh oh");}
+        if (direction && Piece.currentGame < Piece.gameHistory.size() - 1) // move forward
+            try {
+                game = Piece.gameHistory.get(Piece.currentGame+1);
+                Piece.currentGame++;
+                System.out.println("ran");
+            } catch(IndexOutOfBoundsException e) {System.out.println("uh oh");} 
+        displayGame();   
     }
 
     public void showNotation()
@@ -244,7 +281,7 @@ public class ChessBoard extends JFrame {
             while (true) {
                 whiteTimeThread = new Thread();
                 blackTimeThread = new Thread();
-                if (Piece.getTurn() == color) {
+                if (Piece.getTurn() == color && !Piece.endGame) {
                     setRemainingTime(remainingTime - 1000);
                     try {
                         Thread.sleep(1000);
@@ -538,12 +575,11 @@ public class ChessBoard extends JFrame {
         JOptionPane.showInputDialog(null, "Current Position", fen);
     }
 
-
     public static void win(boolean c) {
+        Piece.endGame(); // end the game (stops timers, stops allowing moves, etc)
         if (c) // If white wins
             JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
         else
             JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
-        Piece.endGame();
     }
 }
