@@ -134,7 +134,11 @@ public /* Abstract? */ class Piece {
             }
 
             if (game[destination] != null) // if this is a capture
+            {
+                if (this instanceof Pawn) // if the piece capturing is a pawn
+                    m += (char)(getColumn(position) + 97);
                 m += "x"; // add an x to the move
+            }
             game[destination] = game[position]; // set the piece at destination = piece at
             game[position] = null; // set old spot to null because nothing is there
             position = destination; // update position variable for the piece to be destination
@@ -161,6 +165,7 @@ public /* Abstract? */ class Piece {
                 m += (char)(getColumn(destination) + 97);
                 m += 8 - getRow(destination);
             }
+            
             notation.add(m);
             try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
