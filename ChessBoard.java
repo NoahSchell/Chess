@@ -56,7 +56,8 @@ public class ChessBoard extends JFrame {
         loadPosition(startFen); // loads the starting position
         displayGame();
 
-        setSize(600, 600);
+        setSize(650, 600);
+        setLocation(300, 100);
         setVisible(false);
     }
 
@@ -78,7 +79,9 @@ public class ChessBoard extends JFrame {
     public void updateVisible() {
         options.setLayout(new GridLayout(6, 1, 0, 60));
         JPanel whiteTime = new JPanel();
+        whiteTime.setBackground(Color.decode("#7d5d3b"));
         JPanel blackTime = new JPanel();
+        blackTime.setBackground(Color.decode("#7d5d3b"));
         forefit = new JButton("Forefit");
         forefit.setBackground(Color.decode("#7d5d3b"));
         forefit.setBorderPainted(false);
@@ -98,12 +101,12 @@ public class ChessBoard extends JFrame {
         back.setBackground(Color.decode("#7d5d3b"));
         back.setBorderPainted(false);
         back.setFocusPainted(false);
-        back.addActionListener(new OptionsPaneButtons());
+        //back.addActionListener(new OptionsPaneButtons());
         forward = new JButton(">");
         forward.setBackground(Color.decode("#7d5d3b"));
         forward.setBorderPainted(false);
         forward.setFocusPainted(false);
-        forward.addActionListener(new OptionsPaneButtons());
+        //forward.addActionListener(new OptionsPaneButtons());
         JPanel forback = new JPanel();
         forback.setLayout(new GridLayout(1, 2));
         forback.add(back);
@@ -136,7 +139,7 @@ public class ChessBoard extends JFrame {
 
     public void setUpOptions() {
         frame = new JFrame();
-        five = new JButton("5:00");
+        five = new JButton("5:00"); 
         ten = new JButton("10:00");
         fifteen = new JButton("15:00");
         thirty = new JButton("30:00");
@@ -158,6 +161,7 @@ public class ChessBoard extends JFrame {
         buttons.add(thirty);
 
         frame.pack();
+        frame.setLocation(500, 300);
         frame.setVisible(true);
     }
 
@@ -189,9 +193,16 @@ public class ChessBoard extends JFrame {
             if (e.getSource() == notation)
                 showNotation();
             if (e.getSource() == back)
-                moveGame(false);
+            {
+                if (Piece.endGame)
+                    moveGame(false);
+            }
             if (e.getSource() == forward)
+            if (Piece.endGame)
+            {
+
                 moveGame(true);
+            }
             frame.setVisible(false);
         }
     }
@@ -202,12 +213,17 @@ public class ChessBoard extends JFrame {
         int loaded = Piece.findLoaded(getFen());
         if (direction)
         {
-            try {loadPosition(Piece.gameHistory.get(loaded+1)); } catch (IndexOutOfBoundsException e) {}
+            try {loadPosition(Piece.gameHistory.get(loaded+1)); 
+                 resetColors();
+            } catch (IndexOutOfBoundsException e) {}
         }
         if (!direction)
         {
-            try {loadPosition(Piece.gameHistory.get(loaded-1)); } catch (IndexOutOfBoundsException e) {}
+            try {loadPosition(Piece.gameHistory.get(loaded-1)); 
+                 resetColors();
+            } catch (IndexOutOfBoundsException e) {}
         }
+        displayGame();
     }
 
     public void showNotation()
@@ -405,6 +421,10 @@ public class ChessBoard extends JFrame {
 
     // loads a position into the game array from a FEN string
     public void loadPosition(String fen) {
+        for (int x = 0; x < 64; x++)
+        {
+            game[x] = null;
+        }
         int column = 0, row = 0; // we start at position 0
         for (int x = 0; x < fen.length(); x++) { // loops through all characters in the FEN string
             char c = fen.charAt(x);

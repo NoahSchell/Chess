@@ -102,7 +102,7 @@ public /* Abstract? */ class Piece {
     // returns success status.
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
-        
+
         String m = "";
         if (! (this instanceof Pawn))
             m += Character.toLowerCase((char)getFenLetter()); // the move starts with the fen letter (lower case) if not a pawn
@@ -116,14 +116,22 @@ public /* Abstract? */ class Piece {
         if (moves.contains(destination)) { // if the destination is a legal move
             // if the king is being moved to a castling square and it can castle in that
             // direction
-            if (color && this instanceof King && destination == 62 && canCastleKingSide())
+            if (color && this instanceof King && destination == 62 && canCastleKingSide()){
                 castleKingSide(); // move the rook into it's correct position
-            if (!color && this instanceof King && destination == 6 && canCastleKingSide())
+                m = "O-O";
+            }
+            if (!color && this instanceof King && destination == 6 && canCastleKingSide()){
                 castleKingSide();
-            if (color && this instanceof King && destination == 58 && canCastleQueenSide())
+                m = "O-O";
+            }
+            if (color && this instanceof King && destination == 58 && canCastleQueenSide()){
                 castleQueenSide();
-            if (!color && this instanceof King && destination == 2 && canCastleQueenSide())
+                m = "O-O-O";
+            }
+            if (!color && this instanceof King && destination == 2 && canCastleQueenSide()){
                 castleQueenSide();
+                m = "O-O-O";
+            }
 
             if (game[destination] != null) // if this is a capture
                 m += "x"; // add an x to the move
@@ -133,8 +141,6 @@ public /* Abstract? */ class Piece {
 
             turn = !turn; // changes which sides turn it is
 
-            while (gameHistory.size() - 1 > loaded) // if a move happens while you're not in loaded, get rid of the rest of stuff
-                gameHistory.pop();
             Piece.gameHistory.add(loaded + 1, ChessBoard.getFen()); // updates the gameHistory 
 
             hasMoved = true;
@@ -151,8 +157,10 @@ public /* Abstract? */ class Piece {
                 promote(false);
 
 
-            m += (char)(getColumn(destination) + 97);
-            m += 8 - getRow(destination);
+            if (!m.contains("O")) {
+                m += (char)(getColumn(destination) + 97);
+                m += 8 - getRow(destination);
+            }
             notation.add(m);
             try {
             AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
