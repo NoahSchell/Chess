@@ -199,18 +199,15 @@ public class ChessBoard extends JFrame {
     // true means move forward, false means move back
     public void moveGame(boolean direction)
     {
-        if (!direction && Piece.currentGame > 0) // move backward
-            try {
-                Piece.currentGame--;
-                System.out.println("ran");
-            } catch(IndexOutOfBoundsException e) {System.out.println("uh oh");}
-        if (direction && Piece.currentGame < Piece.gameHistory.size() - 1) // move forward
-            try {
-                Piece.currentGame++;
-                System.out.println("ran");
-            } catch(IndexOutOfBoundsException e) {System.out.println("uh oh");} 
-        loadPosition(Piece.gameHistory.get(Piece.currentGame));
-        displayGame();
+        int loaded = Piece.findLoaded(getFen());
+        if (direction)
+        {
+            try {loadPosition(Piece.gameHistory.get(loaded+1)); } catch (IndexOutOfBoundsException e) {}
+        }
+        if (!direction)
+        {
+            try {loadPosition(Piece.gameHistory.get(loaded-1)); } catch (IndexOutOfBoundsException e) {}
+        }
     }
 
     public void showNotation()

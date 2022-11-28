@@ -9,7 +9,17 @@ public /* Abstract? */ class Piece {
     public static LinkedList<String> notation = new LinkedList<String>();
     public static LinkedList<String> gameHistory = new LinkedList<String>(); // will need to be worked on. 
                                                                              // what if move happens on previous state? stack.pop()?
-    public static int currentGame = 0; 
+    private static int loaded = 0; 
+    public static int findLoaded(String s)
+    {
+        loaded = -1;
+        for (int x = 0; x < Piece.gameHistory.size(); x++)
+            if (Piece.gameHistory.get(x).equals(s))
+                loaded = x;
+        return loaded;
+    }
+
+
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
     // each piece has a position, color (T = white, F = black), captured (F by
@@ -92,12 +102,6 @@ public /* Abstract? */ class Piece {
     // returns success status.
     // this method is similar to a setPosition() method
     public boolean move(int destination) {
-        if (currentGame < gameHistory.size() - 1)
-        {
-            JOptionPane.showMessageDialog(null, "Go back to the current position to move", "Unable to move", JOptionPane.INFORMATION_MESSAGE);
-            return false;
-        }
-        
         
         String m = "";
         if (! (this instanceof Pawn))
@@ -129,9 +133,9 @@ public /* Abstract? */ class Piece {
 
             turn = !turn; // changes which sides turn it is
 
-
-            Piece.gameHistory.add(ChessBoard.getFen()); // updates the gameHistory 
-            Piece.currentGame++; // moves the counter
+            while (gameHistory.size() - 1 > loaded) // if a move happens while you're not in loaded, get rid of the rest of stuff
+                gameHistory.pop();
+            Piece.gameHistory.add(loaded + 1, ChessBoard.getFen()); // updates the gameHistory 
 
             hasMoved = true;
 
