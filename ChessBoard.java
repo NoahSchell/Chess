@@ -6,20 +6,15 @@ import java.awt.event.*;
 import java.util.*;
 
 public class ChessBoard extends JFrame {
-
     static JPanel[] squares = new JPanel[64]; // what the GUI actually displays
     static Piece[] game = Piece.game; // computers internal representation of the board
-
     static Color dark = new Color(150, 111, 67); // color for dark squares
     static Color light = new Color(242, 210, 173); // color for light squares
     static Color selected = Color.decode("#a5e68c"); // color to display where a selected piece can move
-
     static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
-
     static King whiteKing, blackKing; // static variables for the kings so that we can easily refer to them when
                                       // looking at Checks
     JPanel board, options;
-
     Piece selectedPiece = null;
 
     public ChessBoard() {
@@ -411,6 +406,7 @@ public class ChessBoard extends JFrame {
         resetColors();
         if (game[pos] == null)
             return;
+        System.out.println(game[pos].getLegalMoves());
         ArrayList<Integer> indicies = game[pos].getLegalMoves();
         for (int x = 0; x < indicies.size(); x++) {
             squares[indicies.get(x)].setBackground(selected);

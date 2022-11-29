@@ -17,7 +17,6 @@ public /* Abstract? */ class Piece {
                 loaded = x;
         return loaded;
     }
-
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
     // each piece has a position, color (T = white, F = black), captured (F by
@@ -25,7 +24,6 @@ public /* Abstract? */ class Piece {
     protected int position;
     protected boolean color, captured, hasMoved = false;
     protected static boolean turn = true; // white goes first
-
     protected ArrayList<Integer> pseudoLegalMoves;
     protected ImageIcon image;
     public static boolean endGame = false;
@@ -68,7 +66,7 @@ public /* Abstract? */ class Piece {
     // returns pseudoLegalMoveslegalMoves after each move has been filtered. These
     // are the pieces ACTUAL legal moves in the position
     public ArrayList<Integer> getLegalMoves() {
-        pseudoLegalMoves.clear(); // clear everything
+        //pseudoLegalMoves.clear(); // clear everything
         setPseudoLegalMoves(); // set everything
         cleanMoves();
         return pseudoLegalMoves;
@@ -120,6 +118,63 @@ public /* Abstract? */ class Piece {
                         m += (char) (getColumn(this.position) + 97);// add the column/file to the notation
                 }
         }
+
+        // if a pawn double moved
+        for (int x = 0; x < 63; x++)
+        {
+            if (game[x] instanceof Pawn)
+                game[x].pseudoLegalMoves.clear(); // pawns cannot en passant after a different move 
+        }
+            // if a pawn moves two rows
+        if (this instanceof Pawn && Math.abs(getRow(position) - getRow(destination)) == 2) 
+        {
+            // if opposite colored pawn is to the right...
+            if (game[destination + right(1)] instanceof Pawn && game[destination + right(1)].getColor() != color)
+            {
+                game[destination + right(1)].pseudoLegalMoves.add( this.position + forward(1)    );
+                System.out.println(game[destination + right(1)].getLegalMoves());
+
+            }
+            if (game[destination + left(1)] instanceof Pawn && game[destination + left(1)].getColor() != color)
+            {
+                game[destination + left(1)].pseudoLegalMoves.add( this.position + forward(1));
+                System.out.println(game[destination + left(1)].getLegalMoves());
+            }
+            
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         if (endGame) {
             JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over",
@@ -407,8 +462,9 @@ public /* Abstract? */ class Piece {
             k = ChessBoard.getBlackKing(); // get the black king
 
         // loop through each of the pieces PseudoLegalMoves
-        for (int x = 0; x < getPseudoLegalMoves().size(); x++) {
-            int target = getPseudoLegalMoves().get(x), original = position; // target = the move
+        for (int x = 0; x < pseudoLegalMoves.size(); x++) {
+            int target = pseudoLegalMoves.get(x), original = position; // target = the move
+            // if the program breaks, change "pseudoLegalMoves" back to "getPseudoLegalMoves()"
 
             // play the move
             game[target] = game[position];
