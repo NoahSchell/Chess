@@ -240,7 +240,6 @@ public class ChessBoard extends JFrame {
                 notat += "\n";
         }
         wi.add(new JTextArea(notat));
-        System.out.println(Piece.notation);
 
         fr.pack();
         fr.setVisible(true);
@@ -324,7 +323,6 @@ public class ChessBoard extends JFrame {
             for (int y = 0; y < 64; y++)
                 // check blacks's moves
                 if (game[y] != null && !game[y].getColor() && !(game[y].getLegalMoves().isEmpty())) {
-                    System.out.println("run");
                     return; // if black has a move, get out
                     
                 }

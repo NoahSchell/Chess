@@ -7,18 +7,16 @@ import java.awt.*;
 
 public /* Abstract? */ class Piece {
     public static LinkedList<String> notation = new LinkedList<String>();
-    public static LinkedList<String> gameHistory = new LinkedList<String>(); // will need to be worked on. 
-                                                                             // what if move happens on previous state? stack.pop()?
-    private static int loaded = 0; 
-    public static int findLoaded(String s)
-    {
+    public static LinkedList<String> gameHistory = new LinkedList<String>();
+    private static int loaded = 0;
+
+    public static int findLoaded(String s) {
         loaded = -1;
         for (int x = 0; x < Piece.gameHistory.size(); x++)
             if (Piece.gameHistory.get(x).equals(s))
                 loaded = x;
         return loaded;
     }
-
 
     public static Piece[] game = new Piece[64]; // this array will be used throughout the game to keep track of pieces.
 
@@ -33,8 +31,7 @@ public /* Abstract? */ class Piece {
     public static boolean endGame = false;
     protected char fenLetter;
 
-    public char getFenLetter()
-    {
+    public char getFenLetter() {
         return fenLetter;
     }
 
@@ -101,13 +98,32 @@ public /* Abstract? */ class Piece {
     // if it's legal, this method moves a piece to the destination index in game[].
     // returns success status.
     // this method is similar to a setPosition() method
+    static String m; // keeps move notation
+    static boolean wait; // for promotion notation 
     public boolean move(int destination) {
+        m = "";
+        if (!(this instanceof Pawn))
+            m += Character.toLowerCase((char) getFenLetter()); // the move starts with the fen letter (lower case) if
+                                                               // not a pawn
 
-        String m = "";
-        if (! (this instanceof Pawn))
-            m += Character.toLowerCase((char)getFenLetter()); // the move starts with the fen letter (lower case) if not a pawn
-        if (endGame){
-            JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        Object type = this.getClass();// gets the class of the piece
+        for (int x =0; x < 64; x++)// loop through the array
+        {
+            Piece pointer = game[x]; //pointer in the array
+            // if pointer is a piece and it is a different piece and it is the same color as the moving piece and is is the same piece
+            if (pointer != null && pointer != this && pointer.getColor() == this.getColor() && type == pointer.getClass())
+                if (pointer.getLegalMoves().contains(destination))
+                {
+                    if (getColumn(this.position) == getColumn(pointer.position))
+                        m += getRow(this.position);//add the row to the notation
+                    else //default to the column
+                        m += (char) (getColumn(this.position) + 97);// add the column/file to the notation
+                }
+        }
+
+        if (endGame) {
+            JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over",
+                    JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
         ArrayList<Integer> moves = getLegalMoves();
@@ -116,19 +132,19 @@ public /* Abstract? */ class Piece {
         if (moves.contains(destination)) { // if the destination is a legal move
             // if the king is being moved to a castling square and it can castle in that
             // direction
-            if (color && this instanceof King && destination == 62 && canCastleKingSide()){
+            if (color && this instanceof King && destination == 62 && canCastleKingSide()) {
                 castleKingSide(); // move the rook into it's correct position
                 m = "O-O";
             }
-            if (!color && this instanceof King && destination == 6 && canCastleKingSide()){
+            if (!color && this instanceof King && destination == 6 && canCastleKingSide()) {
                 castleKingSide();
                 m = "O-O";
             }
-            if (color && this instanceof King && destination == 58 && canCastleQueenSide()){
+            if (color && this instanceof King && destination == 58 && canCastleQueenSide()) {
                 castleQueenSide();
                 m = "O-O-O";
             }
-            if (!color && this instanceof King && destination == 2 && canCastleQueenSide()){
+            if (!color && this instanceof King && destination == 2 && canCastleQueenSide()) {
                 castleQueenSide();
                 m = "O-O-O";
             }
@@ -136,7 +152,7 @@ public /* Abstract? */ class Piece {
             if (game[destination] != null) // if this is a capture
             {
                 if (this instanceof Pawn) // if the piece capturing is a pawn
-                    m += (char)(getColumn(position) + 97);
+                    m += (char) (getColumn(position) + 97);
                 m += "x"; // add an x to the move
             }
             game[destination] = game[position]; // set the piece at destination = piece at
@@ -145,7 +161,7 @@ public /* Abstract? */ class Piece {
 
             turn = !turn; // changes which sides turn it is
 
-            Piece.gameHistory.add(loaded + 1, ChessBoard.getFen()); // updates the gameHistory 
+            Piece.gameHistory.add(loaded + 1, ChessBoard.getFen()); // updates the gameHistory
 
             hasMoved = true;
 
@@ -154,53 +170,64 @@ public /* Abstract? */ class Piece {
             } else {
                 ChessBoard.updateThreads(false);
             }
-            // if a pawn was promoted
-            if (this instanceof Pawn && color && destination >= 0 && destination <= 8)
-                promote(true);
-            else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63)
-                promote(false);
-
+            
 
             if (!m.contains("O")) {
-                m += (char)(getColumn(destination) + 97);
+                m += (char) (getColumn(destination) + 97);
                 m += 8 - getRow(destination);
             }
-            
-            notation.add(m);
+
+            // if a pawn was promoted
+            if (this instanceof Pawn && color && destination >= 0 && destination < 8){
+                promote(true);
+                wait = true;
+            }
+            else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63){
+                promote(false);
+                wait = true;
+            }
+            if (!wait)
+                notation.add(m);
             try {
-            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioInputStream);
-            clip.start();
-            } catch (Exception e) {}
+                AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioInputStream);
+                clip.start();
+            } catch (Exception e) {
+            }
             return true;
         }
         return false;
     }
 
-    static JButton rook, knight, bishop, queen; 
+    static JButton rook, knight, bishop, queen;
     static JFrame f;
-    public void promote(boolean c)
-    {
+
+    public void promote(boolean c) {
         f = new JFrame();
         f.setLayout(new FlowLayout());
         Container window = f.getContentPane();
-        if (c)
-        {
+        if (c) {
             rook = new JButton(new ImageIcon("Pieces/WhiteRook.png"));
             knight = new JButton(new ImageIcon("Pieces/WhiteKnight.png"));
             bishop = new JButton(new ImageIcon("Pieces/WhiteBishop.png"));
             queen = new JButton(new ImageIcon("Pieces/WhiteQueen.png"));
-        }
-        else
-        {
+        } else {
             rook = new JButton(new ImageIcon("Pieces/BlackRook.png"));
             knight = new JButton(new ImageIcon("Pieces/BlackKnight.png"));
             bishop = new JButton(new ImageIcon("Pieces/BlackBishop.png"));
             queen = new JButton(new ImageIcon("Pieces/BlackQueen.png"));
         }
         PromotionButtons listener = new PromotionButtons();
-        rook.addActionListener(listener );
+        rook.setBackground(Color.WHITE);
+        rook.setFocusPainted(false);
+        knight.setBackground(Color.WHITE);
+        knight.setFocusPainted(false);
+        bishop.setBackground(Color.WHITE);
+        bishop.setFocusPainted(false);
+        queen.setBackground(Color.WHITE);
+        queen.setFocusPainted(false);
+        rook.addActionListener(listener);
         knight.addActionListener(listener);
         bishop.addActionListener(listener);
         queen.addActionListener(listener);
@@ -212,18 +239,26 @@ public /* Abstract? */ class Piece {
         f.pack();
         f.setVisible(true);
     }
-    public class PromotionButtons implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            if (e.getSource() == rook)
+
+    public class PromotionButtons implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == rook){
                 game[position] = new Rook(position, getColor());
-            if (e.getSource() == knight)
+                m += "=r";
+            }
+            if (e.getSource() == knight){
                 game[position] = new Knight(position, getColor());
-            if (e.getSource() == bishop)
+                m += "=n";
+            }
+            if (e.getSource() == bishop){
                 game[position] = new Bishop(position, getColor());
-            if (e.getSource() == queen)
+                m += "=b";
+            }
+            if (e.getSource() == queen){
                 game[position] = new Queen(position, getColor());
+                m += "=q";
+            }
+            notation.add(m);
             f.setVisible(false);
             ChessBoard.displayGame();
         }
