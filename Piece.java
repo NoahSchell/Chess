@@ -36,6 +36,7 @@ public /* Abstract? */ class Piece {
     public static void endGame() {
         endGame = true;
         ChessBoard.showNotation();
+
     }
 
     public Piece(int x, boolean c) {
@@ -178,10 +179,41 @@ public /* Abstract? */ class Piece {
                     m += (char) (getColumn(position) + 97);
                 m += "x"; // add an x to the move
             }
-            game[destination] = game[position]; // set the piece at destination = piece at
-            game[position] = null; // set old spot to null because nothing is there
-            position = destination; // update position variable for the piece to be destination
 
+            ChessBoard.doublePawnMoves.clear();
+            
+            if(this instanceof Pawn) // if the current piece is a pawn
+            {
+                // check for promotion and display the promotion menu if needed
+                if (this instanceof Pawn && color && destination >= 0 && destination < 8){ 
+                    promote(true);
+                    wait = true;
+                }
+                else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63){
+                    promote(false);
+                    wait = true;
+                }
+                
+                // if the pawn made a double move
+                if(Math.abs(destination - position) == 16)
+                {
+                    ChessBoard.doublePawnMoves.add(destination); // add the destination to the doublePawnMoves stack
+                }
+            }
+            
+            if (!wait)
+                notation.add(m);
+                
+            if(isEnPassant(destination)) // if the move is a capture EnPassant
+            {
+                enPassant(destination); // take enPassant
+            }
+            else // if the move isn't a capture EnPassant
+            {
+                game[destination] = game[position]; // set the piece at destination = piece at
+                game[position] = null; // set old spot to null because nothing is there
+                position = destination; // update position variable for the piece to be destination
+            }
             turn = !turn; // changes which sides turn it is
 
             Piece.gameHistory.add(loaded + 1, ChessBoard.getFen()); // updates the gameHistory
@@ -194,11 +226,11 @@ public /* Abstract? */ class Piece {
                 ChessBoard.updateThreads(false);
             }
             
-
             if (!m.contains("O")) {
                 m += (char) (getColumn(destination) + 97);
                 m += 8 - getRow(destination);
             }
+
 
             // if white just moved 
             if (!turn && ChessBoard.blackKing.isInCheck())
@@ -217,11 +249,13 @@ public /* Abstract? */ class Piece {
             }
             if (!wait)
                 notation.add(m);
+
             try {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInputStream);
                 clip.start();
+
             } catch (Exception e) {
             }
 
@@ -235,10 +269,31 @@ public /* Abstract? */ class Piece {
             if (stale)
                 ChessBoard.staleMate();
 
+            return true;
+        }
+        return false;
+    }
+
+    
+    // returns true if the given move is a capture EnPassant
+    public boolean isEnPassant(int destination)
+    {
+        if(this instanceof Pawn && this.getColumn(position) != this.getColumn(destination) && game[destination] == null)
+        {
 
             return true;
         }
         return false;
+    }
+
+    
+    // method to capture En Passant
+    public void enPassant(int destination)
+    {
+        game[destination] = game[position];
+        game[position] = null;
+        game[destination + backward(1)] = null;
+        position = destination;
     }
 
     static JButton rook, knight, bishop, queen;
@@ -312,9 +367,11 @@ public /* Abstract? */ class Piece {
             return true;
         if (!color && !hasMoved && game[5] == null && game[6] == null && game[7] instanceof Rook && !game[7].color
                 && !game[7].hasMoved)
+
             return true;
         return false;
     }
+
 
     // returns true if the king can castle queenside
     public boolean canCastleQueenSide() {
@@ -448,14 +505,23 @@ public /* Abstract? */ class Piece {
             k = ChessBoard.getBlackKing(); // get the black king
 
         // loop through each of the pieces PseudoLegalMoves
-        for (int x = 0; x < pseudoLegalMoves.size(); x++) {
-            int target = pseudoLegalMoves.get(x), original = position; // target = the move
-            // if the program breaks, change "pseudoLegalMoves" back to "getPseudoLegalMoves()"
 
+        for (int x = 0; x < getPseudoLegalMoves().size(); x++) {
+            int target = getPseudoLegalMoves().get(x), original = position; // target = the move
+            boolean ep = false;
+            
             // play the move
-            game[target] = game[position];
-            game[position] = null;
-            position = target;
+            if(isEnPassant(target)) // if it is a capture En Passant
+            {
+                enPassant(target); // capture En Passant
+                ep = true;
+            }
+            else // if it is not a capture En Passant, move normally
+            {
+                game[target] = game[position];
+                game[position] = null;
+                position = target;
+            }
 
             if (k.isInCheck()) // if the king is in check
             {
@@ -463,9 +529,19 @@ public /* Abstract? */ class Piece {
             }
 
             // undo the move using copy
-            game[original] = copy[original];
-            game[target] = copy[target];
-            position = original;
+            if(ep) // if the move was an capture En Passant
+            { // undo the En Passant capture
+                game[original] = copy[original];
+                game[target] = copy[target];
+                game[target + backward(1)] = copy[target + backward(1)];
+                position = original;
+            }
+            else // do the normal thing
+            {
+                game[original] = copy[original];
+                game[target] = copy[target];
+                position = original;
+            }
         }
 
         // if the current piece is a king, don't allow it to castle out of check
