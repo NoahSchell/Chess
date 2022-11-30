@@ -35,6 +35,8 @@ public /* Abstract? */ class Piece {
 
     public static void endGame() {
         endGame = true;
+        ChessBoard.showNotation();
+
     }
 
     public Piece(int x, boolean c) {
@@ -103,7 +105,7 @@ public /* Abstract? */ class Piece {
         if (!(this instanceof Pawn))
             m += Character.toLowerCase((char) getFenLetter()); // the move starts with the fen letter (lower case) if
                                                                // not a pawn
-                                                               
+
         Object type = this.getClass();// gets the class of the piece
         for (int x =0; x < 64; x++)// loop through the array
         {
@@ -119,11 +121,35 @@ public /* Abstract? */ class Piece {
                 }
         }
 
-        if (endGame) { // if the game is over
-            JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+        // if a pawn double moved
+        for (int x = 0; x < 63; x++)
+        {
+            if (game[x] instanceof Pawn)
+                game[x].pseudoLegalMoves.clear(); // pawns cannot en passant after a different move 
+        }
+            // if a pawn moves two rows
+        if (this instanceof Pawn && Math.abs(getRow(position) - getRow(destination)) == 2) 
+        {
+            // if opposite colored pawn is to the right...
+            if (game[destination + right(1)] instanceof Pawn && game[destination + right(1)].getColor() != color)
+            {
+                game[destination + right(1)].pseudoLegalMoves.add( this.position + forward(1)    );
+                System.out.println(game[destination + right(1)].getLegalMoves());
+
+            }
+            if (game[destination + left(1)] instanceof Pawn && game[destination + left(1)].getColor() != color)
+            {
+                game[destination + left(1)].pseudoLegalMoves.add( this.position + forward(1));
+                System.out.println(game[destination + left(1)].getLegalMoves());
+            }
+            
+        }
+
+        if (endGame) {
+            JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over",
+                    JOptionPane.INFORMATION_MESSAGE);
             return false;
         }
-        
         ArrayList<Integer> moves = getLegalMoves();
         if (getColor() != turn) // if the piece you want to move isn't turn, get out of here
             return false;
@@ -153,7 +179,7 @@ public /* Abstract? */ class Piece {
                     m += (char) (getColumn(position) + 97);
                 m += "x"; // add an x to the move
             }
-            
+
             ChessBoard.doublePawnMoves.clear();
             
             if(this instanceof Pawn) // if the current piece is a pawn
@@ -193,7 +219,7 @@ public /* Abstract? */ class Piece {
             Piece.gameHistory.add(loaded + 1, ChessBoard.getFen()); // updates the gameHistory
 
             hasMoved = true;
-            
+
             if (turn) {
                 ChessBoard.updateThreads(true);
             } else {
@@ -204,28 +230,62 @@ public /* Abstract? */ class Piece {
                 m += (char) (getColumn(destination) + 97);
                 m += 8 - getRow(destination);
             }
-                
-            // play the sound!
+
+
+            // if white just moved 
+            if (!turn && ChessBoard.blackKing.isInCheck())
+                m += "+";
+            else if (turn && ChessBoard.whiteKing.isInCheck())
+                m += "+";
+
+            // if a pawn was promoted
+            if (this instanceof Pawn && color && destination >= 0 && destination < 8){
+                promote(true);
+                wait = true;
+            }
+            else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63){
+                promote(false);
+                wait = true;
+            }
+            if (!wait)
+                notation.add(m);
+
             try {
                 AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("move.wav"));
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInputStream);
                 clip.start();
-            } catch (Exception e){}
+
+            } catch (Exception e) {
+            }
+
+            boolean stale = true;
+            for (int x = 0; x < 64; x++)
+            {
+                if (game[x] != null && game[x].getColor() == turn)
+                    if (!game[x].getLegalMoves().isEmpty())
+                        stale = false;
+            }
+            if (stale)
+                ChessBoard.staleMate();
+
             return true;
         }
         return false;
     }
+
     
     // returns true if the given move is a capture EnPassant
     public boolean isEnPassant(int destination)
     {
         if(this instanceof Pawn && this.getColumn(position) != this.getColumn(destination) && game[destination] == null)
         {
+
             return true;
         }
         return false;
     }
+
     
     // method to capture En Passant
     public void enPassant(int destination)
@@ -307,9 +367,11 @@ public /* Abstract? */ class Piece {
             return true;
         if (!color && !hasMoved && game[5] == null && game[6] == null && game[7] instanceof Rook && !game[7].color
                 && !game[7].hasMoved)
+
             return true;
         return false;
     }
+
 
     // returns true if the king can castle queenside
     public boolean canCastleQueenSide() {
@@ -443,6 +505,7 @@ public /* Abstract? */ class Piece {
             k = ChessBoard.getBlackKing(); // get the black king
 
         // loop through each of the pieces PseudoLegalMoves
+
         for (int x = 0; x < getPseudoLegalMoves().size(); x++) {
             int target = getPseudoLegalMoves().get(x), original = position; // target = the move
             boolean ep = false;
@@ -459,7 +522,7 @@ public /* Abstract? */ class Piece {
                 game[position] = null;
                 position = target;
             }
-            
+
             if (k.isInCheck()) // if the king is in check
             {
                 toBeRemoved.add(target); // add the move to the list of moves that need to be removed

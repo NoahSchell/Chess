@@ -3,10 +3,14 @@ import javax.swing.*;
 public class Knight extends Piece {
     public Knight(int pos, boolean c) {
         super(pos, c);
-        if (color)
+        if (color){
             image = new ImageIcon("Pieces/WhiteKnight.png");
-        if (!color)
+            fenLetter = 'N';
+        }
+        if (!color){
             image = new ImageIcon("Pieces/BlackKnight.png");
+            fenLetter = 'n';
+        }
     }
 
     public void setPseudoLegalMoves() {

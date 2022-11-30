@@ -5,9 +5,14 @@ public class Rook extends Piece {
     public Rook(int x, boolean col) {
         super(x, col);
         if (color)
+        {
             image = new ImageIcon("Pieces/WhiteRook.png");
-        if (!color)
+            fenLetter = 'R';
+        }
+        if (!color) {
             image = new ImageIcon("Pieces/BlackRook.png");
+            fenLetter = 'r';
+        }
     }
 
     public void setPseudoLegalMoves() {

@@ -1,13 +1,16 @@
 import javax.swing.*;
-import java.util.*;
 public class King extends Piece {
     public boolean hasMoved = false;
     public King(int pos, boolean c) {
         super(pos, c);
-        if (color)
+        if (color){
             image = new ImageIcon("Pieces/WhiteKing.png");
-        if (!color)
+            fenLetter = 'K';
+        }
+        if (!color){
             image = new ImageIcon("Pieces/BlackKing.png");
+            fenLetter = 'k';
+        }
     }
 
     public void setPseudoLegalMoves() {
@@ -74,4 +77,6 @@ public class King extends Piece {
             return ChessBoard.blackSquares().contains(position);
         return ChessBoard.whiteSquares().contains(position);
     }
+
+}
 
