@@ -1,7 +1,8 @@
 import javax.swing.*;
-import javax.swing.*;
 
-public class Pawn extends Piece {
+public class Pawn extends Piece { 
+
+    
 
     public Pawn(int pos, boolean c) {
         super(pos, c);
@@ -50,17 +51,14 @@ public class Pawn extends Piece {
         }
         
         // En Passant
-        int doublePawnMove = 0;
-        if(!ChessBoard.doublePawnMoves.isEmpty()) {
-            doublePawnMove = ChessBoard.doublePawnMoves.get(ChessBoard.doublePawnMoves.size()-1);
-            if(doublePawnMove == position - 1)
-            {
-                pseudoLegalMoves.add(position + forward(1) + left(1));
-            }
-            else if(doublePawnMove == position + 1)
-            {
-                pseudoLegalMoves.add(position + forward(1) + right(1));
-            }
-        }
+    }
+    
+    // method to capture En Passant
+    public void enPassant()
+    {
+        int destination = position + left(1) + forward(1);
+        game[position + left(1)] = null;
+        game[destination] = game[position];
+        position = destination;
     }
 }
