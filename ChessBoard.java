@@ -11,7 +11,7 @@ public class ChessBoard extends JFrame {
     static Color dark = new Color(150, 111, 67); // color for dark squares
     static Color light = new Color(242, 210, 173); // color for light squares
     static Color selected = Color.decode("#a5e68c"); // color to display where a selected piece can move
-    static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
+    static String startFen = "/K7///1k6///Q7/";//"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
     static King whiteKing, blackKing; // static variables for the kings so that we can easily refer to them when
                                       // looking at Checks
     JPanel board, options;
@@ -71,6 +71,7 @@ public class ChessBoard extends JFrame {
         }
     }
 
+    static Timers whiteTimer, blackTimer;
     public void updateVisible() {
         options.setLayout(new GridLayout(6, 1, 0, 60));
         JPanel whiteTime = new JPanel();
@@ -107,8 +108,8 @@ public class ChessBoard extends JFrame {
         forback.add(back);
         forback.add(forward);
 
-        Timers whiteTimer = new Timers(true);
-        Timers blackTimer = new Timers(false);
+        whiteTimer = new Timers(true);
+        blackTimer = new Timers(false);
 
         whiteTimeThread = new Thread(whiteTimer);
         blackTimeThread = new Thread(blackTimer);
@@ -128,7 +129,7 @@ public class ChessBoard extends JFrame {
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward;
+    static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward, custom;
     static int startTime;
     JFrame frame;
 
@@ -138,10 +139,12 @@ public class ChessBoard extends JFrame {
         ten = new JButton("10:00");
         fifteen = new JButton("15:00");
         thirty = new JButton("30:00");
+        custom = new JButton("Custom");
         five.addActionListener(new OptionsPaneButtons());
         ten.addActionListener(new OptionsPaneButtons());
         fifteen.addActionListener(new OptionsPaneButtons());
         thirty.addActionListener(new OptionsPaneButtons());
+        custom.addActionListener(new OptionsPaneButtons());
 
         frame.setLayout(new GridLayout(2, 1));
         JPanel question = new JPanel();
@@ -154,6 +157,7 @@ public class ChessBoard extends JFrame {
         buttons.add(ten);
         buttons.add(fifteen);
         buttons.add(thirty);
+        buttons.add(custom);
 
         frame.pack();
         frame.setLocation(500, 300);
@@ -178,6 +182,20 @@ public class ChessBoard extends JFrame {
                 startTime = 30;
                 updateVisible();
             }
+            if (e.getSource() == custom)
+            {
+                int d = 0;
+                while (true) {
+                    try {
+                        String t = JOptionPane.showInputDialog("Enter the number of minutes you would like to start with");
+                        d = Integer.parseInt(t);
+                        break;
+                    }
+                    catch (NumberFormatException exce) {JOptionPane.showMessageDialog(null, "Please enter a positive integer.", "Format error", JOptionPane.WARNING_MESSAGE);}
+                }
+                startTime = d;
+                updateVisible();
+            }
             if (e.getSource() == forefit)
                 forefit();
             if (e.getSource() == fen)
@@ -195,7 +213,6 @@ public class ChessBoard extends JFrame {
             if (e.getSource() == forward)
             if (Piece.endGame)
             {
-
                 moveGame(true);
             }
             frame.setVisible(false);
@@ -251,10 +268,10 @@ public class ChessBoard extends JFrame {
         boolean color;
 
         public Timers(boolean c) {
-            timer = new Timer(1000, new ActionListener() {
+            timer = new Timer(1000, new ActionListener() { // turns out this Timer object is unnecessary! interesting
                 public void actionPerformed(ActionEvent e) {
-                    repaint();
-                    revalidate();
+                    //repaint();
+                    //revalidate();
                 }
             });
             timer.start();
@@ -267,7 +284,6 @@ public class ChessBoard extends JFrame {
         }
 
         public String getRemainingTime() {
-
             int hours = (int) ((remainingTime / 3600000) % 60);
             int minutes = (int) ((remainingTime / 60000) % 60);
             int seconds = (int) (((remainingTime) / 1000) % 60);
@@ -287,11 +303,15 @@ public class ChessBoard extends JFrame {
         }
 
         public void run() {
-            while (true) {
+            while (countDown) {
                 whiteTimeThread = new Thread();
                 blackTimeThread = new Thread();
                 if (Piece.getTurn() == color && !Piece.endGame) {
                     setRemainingTime(remainingTime - 1000);
+                    repaint();
+                    revalidate();
+                    if (getRemainingTime().equals("00:00:00"))
+                        ChessBoard.win(!color); // if you run out of time, the other person wins.
                     try {
                         Thread.sleep(1000);
                     } catch (InterruptedException e) {
@@ -300,7 +320,9 @@ public class ChessBoard extends JFrame {
             }
         }
     }
-
+    static boolean countDown = true;// a boolean for if we want timers to change
+    
+    
     public static void checkCheckmate()
     {
         // if it's white's turn and white is in check
@@ -310,6 +332,7 @@ public class ChessBoard extends JFrame {
                 // check white's moves
                 if (game[x] != null && game[x].getColor() && !(game[x].getLegalMoves().isEmpty()))
                     return; // if white has a move, get out
+            Piece.notation.set(Piece.notation.size() - 1, Piece.notation.get(Piece.notation.size()-1) + "#");
             win(false); // otherwise black wins
         }
         // if its blacks turn and the black king is in check
@@ -321,6 +344,7 @@ public class ChessBoard extends JFrame {
                     return; // if black has a move, get out
                     
                 }
+            Piece.notation.set(Piece.notation.size() - 1, Piece.notation.get(Piece.notation.size()-1) + "#");
             win(true); // otherwise white wins
         }
         
@@ -592,10 +616,18 @@ public class ChessBoard extends JFrame {
     }
 
     public static void win(boolean c) {
+        countDown = false;
         Piece.endGame(); // end the game (stops timers, stops allowing moves, etc)
         if (c) // If white wins
             JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
         else
             JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static void staleMate()
+    {
+        countDown = false;
+        Piece.endGame();
+        JOptionPane.showMessageDialog(null, "A stalemate has been reached", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
     }
 }

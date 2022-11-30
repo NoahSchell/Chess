@@ -143,39 +143,6 @@ public /* Abstract? */ class Piece {
             
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         if (endGame) {
             JOptionPane.showMessageDialog(null, "The game is finished, you cannot move!", "Game Over",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -232,6 +199,12 @@ public /* Abstract? */ class Piece {
                 m += 8 - getRow(destination);
             }
 
+            // if white just moved 
+            if (!turn && ChessBoard.blackKing.isInCheck())
+                m += "+";
+            else if (turn && ChessBoard.whiteKing.isInCheck())
+                m += "+";
+
             // if a pawn was promoted
             if (this instanceof Pawn && color && destination >= 0 && destination < 8){
                 promote(true);
@@ -250,6 +223,16 @@ public /* Abstract? */ class Piece {
                 clip.start();
             } catch (Exception e) {
             }
+
+            for (int x = 0; x < 64; x++)
+            {
+                if (game[x] != null && game[x].getColor() == turn)
+                    if (!game[x].getLegalMoves().isEmpty())
+                        break;
+                ChessBoard.staleMate();
+            }
+
+
             return true;
         }
         return false;
