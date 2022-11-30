@@ -278,9 +278,8 @@ public /* Abstract? */ class Piece {
     // returns true if the given move is a capture EnPassant
     public boolean isEnPassant(int destination)
     {
-        if(this instanceof Pawn && this.getColumn(position) != this.getColumn(destination) && game[destination] == null)
+        if(this instanceof Pawn && getColumn(position) != getColumn(destination) && game[destination] == null)
         {
-
             return true;
         }
         return false;
