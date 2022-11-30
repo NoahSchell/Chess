@@ -73,7 +73,7 @@ public class ChessBoard extends JFrame {
 
     static Timers whiteTimer, blackTimer;
     public void updateVisible() {
-        options.setLayout(new GridLayout(6, 1, 0, 60));
+        options.setLayout(new GridLayout(7, 1, 0, 37));
         JPanel whiteTime = new JPanel();
         whiteTime.setBackground(Color.decode("#7d5d3b"));
         JPanel blackTime = new JPanel();
@@ -83,12 +83,12 @@ public class ChessBoard extends JFrame {
         forefit.setBorderPainted(false);
         forefit.setFocusPainted(false);
         forefit.addActionListener(new OptionsPaneButtons());
-        fen = new JButton("Get FEN String");
+        fen = new JButton("FEN String");
         fen.setBackground(Color.decode("#7d5d3b"));
         fen.setBorderPainted(false);
         fen.setFocusPainted(false);
         fen.addActionListener(new OptionsPaneButtons());
-        notation = new JButton("Get notation");
+        notation = new JButton("Notation");
         notation.setBackground(Color.decode("#7d5d3b"));
         notation.setBorderPainted(false);
         notation.setFocusPainted(false);
@@ -110,9 +110,10 @@ public class ChessBoard extends JFrame {
 
         options.setBackground(Color.decode("#c9a885"));
         options.add(blackTime);
-        options.add(forefit);
-        options.add(notation);
         options.add(fen);
+        options.add(notation);
+        options.add(result);
+        options.add(forefit);
         options.add(draw);
         options.add(whiteTime);
         this.setVisible(true);
@@ -121,6 +122,7 @@ public class ChessBoard extends JFrame {
     }
 
     static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward, custom, draw;
+    static JLabel result = new JLabel("Result: Unknown");
     static int startTime;
     JFrame frame;
 
@@ -621,16 +623,24 @@ public class ChessBoard extends JFrame {
     public static void win(boolean c) {
         countDown = false;
         Piece.endGame(); // end the game (stops timers, stops allowing moves, etc)
-        if (c) // If white wins
+        if (c){ // If white wins
             JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
-        else
+            result.setText("Result: White Wins");
+            result.revalidate();
+        }
+        else{
             JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
+            result.setText("Result: Black Wins");
+            result.revalidate();
+        }
     }
 
     public static void staleMate()
     {
         countDown = false;
         Piece.endGame();
+        result.setText("Result:        Draw");
+        result.revalidate();
         JOptionPane.showMessageDialog(null, "A stalemate has been reached", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
         Piece.notation.set(Piece.notation.size() - 1, Piece.notation.get(Piece.notation.size()-1) + "$");
 
@@ -640,6 +650,8 @@ public class ChessBoard extends JFrame {
     {
         countDown = false;
         Piece.endGame();
+        result.setText("Result:        Draw");
+        result.revalidate();
         JOptionPane.showMessageDialog(null, "A draw has been agreed to.", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
     }
 }
