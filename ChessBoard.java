@@ -93,20 +93,11 @@ public class ChessBoard extends JFrame {
         notation.setBorderPainted(false);
         notation.setFocusPainted(false);
         notation.addActionListener(new OptionsPaneButtons());
-        back = new JButton("<");
-        back.setBackground(Color.decode("#7d5d3b"));
-        back.setBorderPainted(false);
-        back.setFocusPainted(false);
-        //back.addActionListener(new OptionsPaneButtons());
-        forward = new JButton(">");
-        forward.setBackground(Color.decode("#7d5d3b"));
-        forward.setBorderPainted(false);
-        forward.setFocusPainted(false);
-        //forward.addActionListener(new OptionsPaneButtons());
-        JPanel forback = new JPanel();
-        forback.setLayout(new GridLayout(1, 2));
-        forback.add(back);
-        forback.add(forward);
+        draw = new JButton("Offer Draw");
+        draw.setBackground(Color.decode("#7d5d3b"));
+        draw.setBorderPainted(false);
+        draw.setFocusPainted(false);
+        draw.addActionListener(new OptionsPaneButtons());
 
         whiteTimer = new Timers(true);
         blackTimer = new Timers(false);
@@ -122,14 +113,14 @@ public class ChessBoard extends JFrame {
         options.add(forefit);
         options.add(notation);
         options.add(fen);
-        options.add(forback);
+        options.add(draw);
         options.add(whiteTime);
         this.setVisible(true);
         whiteTimeThread.start();
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward, custom;
+    static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward, custom, draw;
     static int startTime;
     JFrame frame;
 
@@ -205,37 +196,45 @@ public class ChessBoard extends JFrame {
             }
             if (e.getSource() == notation)
                 showNotation();
-            if (e.getSource() == back)
-            {
-                if (Piece.endGame)
-                    moveGame(false);
-            }
-            if (e.getSource() == forward)
-            if (Piece.endGame)
-            {
-                moveGame(true);
-            }
+            if (e.getSource() == draw)
+                offerDraw();
             frame.setVisible(false);
         }
     }
-
-    // true means move forward, false means move back
-    public void moveGame(boolean direction)
+    static JButton yes, no;
+    static JFrame drawFrame;
+    public static void offerDraw()
     {
-        int loaded = Piece.findLoaded(getFen());
-        if (direction)
+        JFrame drawFrame = new JFrame();
+        Container win = drawFrame.getContentPane();
+        yes = new JButton("Accept");
+        yes.addActionListener(new DrawButtons());
+        no = new JButton("Reject");
+        no.addActionListener(new DrawButtons());
+        win.setLayout(new GridLayout(2, 1));
+        JPanel p = new JPanel();
+        p.add(yes);
+        p.add(no);
+        win.add(new JLabel("Your opponent offered a draw. Would you like to accept or reject the offer?"));
+        win.add(p);
+
+        drawFrame.pack();
+        drawFrame.setVisible(true);
+        drawFrame.setLocation(500, 350);
+    }
+    public static class DrawButtons implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
         {
-            try {loadPosition(Piece.gameHistory.get(loaded+1)); 
-                 resetColors();
-            } catch (IndexOutOfBoundsException e) {}
+            if (e.getSource() == yes){
+                ChessBoard.draw();
+                drawFrame.setVisible(false);
+            }
+            if (e.getSource() == no){
+                JOptionPane.showMessageDialog(null, "Continue playing", "Draw Offer Rejected", JOptionPane.INFORMATION_MESSAGE);
+                drawFrame.setVisible(false);
+            }
         }
-        if (!direction)
-        {
-            try {loadPosition(Piece.gameHistory.get(loaded-1)); 
-                 resetColors();
-            } catch (IndexOutOfBoundsException e) {}
-        }
-        displayGame();
     }
 
     public void showNotation()
@@ -619,9 +618,9 @@ public class ChessBoard extends JFrame {
         countDown = false;
         Piece.endGame(); // end the game (stops timers, stops allowing moves, etc)
         if (c) // If white wins
-            JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
         else
-            JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void staleMate()
@@ -629,5 +628,14 @@ public class ChessBoard extends JFrame {
         countDown = false;
         Piece.endGame();
         JOptionPane.showMessageDialog(null, "A stalemate has been reached", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
+        Piece.notation.set(Piece.notation.size() - 1, Piece.notation.get(Piece.notation.size()-1) + "$");
+
+    }
+
+    public static void draw()
+    {
+        countDown = false;
+        Piece.endGame();
+        JOptionPane.showMessageDialog(null, "A draw has been agreed to.", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
     }
 }

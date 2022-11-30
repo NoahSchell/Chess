@@ -224,13 +224,15 @@ public /* Abstract? */ class Piece {
             } catch (Exception e) {
             }
 
+            boolean stale = true;
             for (int x = 0; x < 64; x++)
             {
                 if (game[x] != null && game[x].getColor() == turn)
                     if (!game[x].getLegalMoves().isEmpty())
-                        break;
-                ChessBoard.staleMate();
+                        stale = false;
             }
+            if (stale)
+                ChessBoard.staleMate();
 
 
             return true;
