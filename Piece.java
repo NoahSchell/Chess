@@ -35,6 +35,7 @@ public /* Abstract? */ class Piece {
 
     public static void endGame() {
         endGame = true;
+        ChessBoard.showNotation();
     }
 
     public Piece(int x, boolean c) {

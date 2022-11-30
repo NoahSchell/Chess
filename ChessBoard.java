@@ -11,7 +11,7 @@ public class ChessBoard extends JFrame {
     static Color dark = new Color(150, 111, 67); // color for dark squares
     static Color light = new Color(242, 210, 173); // color for light squares
     static Color selected = Color.decode("#a5e68c"); // color to display where a selected piece can move
-    static String startFen = "/K7///1k6///Q7/";//"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
+    static String startFen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR"; // FEN string for the starting postion
     static King whiteKing, blackKing; // static variables for the kings so that we can easily refer to them when
                                       // looking at Checks
     JPanel board, options;
@@ -208,8 +208,12 @@ public class ChessBoard extends JFrame {
         drawFrame = new JFrame();
         Container win = drawFrame.getContentPane();
         yes = new JButton("Accept");
+        yes.setBorderPainted(false);
+        yes.setFocusPainted(false);
         yes.addActionListener(new DrawButtons());
         no = new JButton("Reject");
+        no.setBorderPainted(false);
+        no.setFocusPainted(false);
         no.addActionListener(new DrawButtons());
         win.setLayout(new GridLayout(2, 1));
         JPanel p = new JPanel();
@@ -237,7 +241,7 @@ public class ChessBoard extends JFrame {
         }
     }
 
-    public void showNotation()
+    public static void showNotation()
     {
         JFrame fr = new JFrame();
         Container wi = fr.getContentPane();
