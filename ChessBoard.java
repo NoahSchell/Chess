@@ -205,7 +205,7 @@ public class ChessBoard extends JFrame {
     static JFrame drawFrame;
     public static void offerDraw()
     {
-        JFrame drawFrame = new JFrame();
+        drawFrame = new JFrame();
         Container win = drawFrame.getContentPane();
         yes = new JButton("Accept");
         yes.addActionListener(new DrawButtons());
