@@ -200,7 +200,7 @@ public class ChessBoard extends JFrame {
             }
             if (e.getSource() == notation)
                 showNotation();
-            if (e.getSource() == draw)
+            if (e.getSource() == draw && !Piece.endGame)
                 offerDraw();
             frame.setVisible(false);
         }

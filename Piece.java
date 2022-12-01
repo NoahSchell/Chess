@@ -232,12 +232,27 @@ public /* Abstract? */ class Piece {
                 m += 8 - getRow(destination);
             }
 
+            boolean stale = true;
+            for (int x = 0; x < 64; x++)
+            {
+                if (game[x] != null && game[x].getColor() == turn)
+                    if (!game[x].getLegalMoves().isEmpty())
+                        stale = false;
+            }
 
-            // if white just moved 
-            if (!turn && ChessBoard.blackKing.isInCheck())
-                m += "+";
-            else if (turn && ChessBoard.whiteKing.isInCheck())
-                m += "+";
+            // add check/checkmate notation
+            if(!stale){
+                if (!turn && ChessBoard.blackKing.isInCheck())
+                    m += "+";
+                else if (turn && ChessBoard.whiteKing.isInCheck())
+                    m += "+";
+            }
+            else{
+                if (!turn && ChessBoard.blackKing.isInCheck())
+                    m += "#";
+                else if (turn && ChessBoard.whiteKing.isInCheck())
+                    m += "#";
+            }
 
             // if a pawn was promoted
             if (this instanceof Pawn && color && destination >= 0 && destination < 8){
@@ -258,13 +273,6 @@ public /* Abstract? */ class Piece {
                 clip.start();
             } catch (Exception e) {}
 
-            boolean stale = true;
-            for (int x = 0; x < 64; x++)
-            {
-                if (game[x] != null && game[x].getColor() == turn)
-                    if (!game[x].getLegalMoves().isEmpty())
-                        stale = false;
-            }
             if (stale)
             {
                 if (turn && ChessBoard.whiteKing.isInCheck())
