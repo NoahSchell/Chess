@@ -266,7 +266,6 @@ public class ChessBoard extends JFrame {
     public void forefit() {
         boolean current = Piece.getTurn();
         win(!current);
-        Piece.endGame();
     }
 
     public class Timers extends JLabel implements Runnable {
@@ -437,7 +436,6 @@ public class ChessBoard extends JFrame {
         resetColors();
         if (game[pos] == null)
             return;
-        System.out.println(game[pos].getLegalMoves());
         ArrayList<Integer> indicies = game[pos].getLegalMoves();
         for (int x = 0; x < indicies.size(); x++) {
             squares[indicies.get(x)].setBackground(selected);
@@ -623,37 +621,43 @@ public class ChessBoard extends JFrame {
     }
 
     public static void win(boolean c) {
-        countDown = false;
-        Piece.endGame(); // end the game (stops timers, stops allowing moves, etc)
-        if (c){ // If white wins
-            JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
-            result.setText("Result: White Wins");
-            result.revalidate();
-        }
-        else{
-            JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
-            result.setText("Result: Black Wins");
-            result.revalidate();
+        if (!Piece.endGame){
+            countDown = false;
+            Piece.endGame(); // end the game (stops timers, stops allowing moves, etc)
+            if (c){ // If white wins
+                JOptionPane.showMessageDialog(null, "White wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
+                result.setText("Result: White Wins");
+                result.revalidate();
+            }
+            else{
+                JOptionPane.showMessageDialog(null, "Black wins! Congrats", "End of Game -- Victory", JOptionPane.INFORMATION_MESSAGE);
+                result.setText("Result: Black Wins");
+                result.revalidate();
+            }
         }
     }
 
     public static void staleMate()
     {
-        countDown = false;
-        Piece.endGame();
-        result.setText("Result:        Draw");
-        result.revalidate();
-        JOptionPane.showMessageDialog(null, "A stalemate has been reached", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
-        Piece.notation.set(Piece.notation.size() - 1, Piece.notation.get(Piece.notation.size()-1) + "$");
-
+        if (!Piece.endGame){
+            countDown = false;
+            Piece.endGame();
+            result.setText("Result:        Draw");
+            result.revalidate();
+            JOptionPane.showMessageDialog(null, "A stalemate has been reached", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
+            Piece.notation.set(Piece.notation.size() - 1, Piece.notation.get(Piece.notation.size()-1) + "$");
+        }
     }
 
     public static void draw()
     {
-        countDown = false;
-        Piece.endGame();
-        result.setText("Result:        Draw");
-        result.revalidate();
-        JOptionPane.showMessageDialog(null, "A draw has been agreed to.", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
+        if (!Piece.endGame)
+        {
+            countDown = false;
+            Piece.endGame();
+            result.setText("Result:        Draw");
+            result.revalidate();
+            JOptionPane.showMessageDialog(null, "A draw has been agreed to.", "End of Game -- Draw", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 }

@@ -177,6 +177,12 @@ public /* Abstract? */ class Piece {
                     m += (char) (getColumn(position) + 97);
                 m += "x"; // add an x to the move
             }
+            // if a pawn is moving to a different column, it is capturing. 
+            else if (this instanceof Pawn && getColumn(position) != getColumn(destination))
+            {
+                m += (char) (getColumn(position) + 97 ); 
+                m += "x";
+            }
 
             ChessBoard.doublePawnMoves.clear();
             
@@ -198,8 +204,6 @@ public /* Abstract? */ class Piece {
                     ChessBoard.doublePawnMoves.add(destination); // add the destination to the doublePawnMoves stack
                 }
             }
-              if (!wait)
-                notation.add(m);
                 
             if(isEnPassant(destination)) // if the move is a capture EnPassant
             {
@@ -252,9 +256,7 @@ public /* Abstract? */ class Piece {
                 Clip clip = AudioSystem.getClip();
                 clip.open(audioInputStream);
                 clip.start();
-
-            } catch (Exception e) {
-            }
+            } catch (Exception e) {}
 
             boolean stale = true;
             for (int x = 0; x < 64; x++)
