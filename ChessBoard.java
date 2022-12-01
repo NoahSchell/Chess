@@ -17,6 +17,8 @@ public class ChessBoard extends JFrame {
     JPanel board, options;
     Piece selectedPiece = null;
 
+    public static ArrayList <Integer> doublePawnMoves = new ArrayList <Integer>();
+
     public ChessBoard() {
         board = new JPanel();
         options = new JPanel();
@@ -199,7 +201,7 @@ public class ChessBoard extends JFrame {
             if (e.getSource() == notation)
                 showNotation();
             if (e.getSource() == draw)
-                offerDraw();
+                draw();
             frame.setVisible(false);
         }
     }

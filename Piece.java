@@ -134,13 +134,11 @@ public /* Abstract? */ class Piece {
             if (game[destination + right(1)] instanceof Pawn && game[destination + right(1)].getColor() != color)
             {
                 game[destination + right(1)].pseudoLegalMoves.add( this.position + forward(1)    );
-                System.out.println(game[destination + right(1)].getLegalMoves());
 
             }
             if (game[destination + left(1)] instanceof Pawn && game[destination + left(1)].getColor() != color)
             {
                 game[destination + left(1)].pseudoLegalMoves.add( this.position + forward(1));
-                System.out.println(game[destination + left(1)].getLegalMoves());
             }
             
         }
@@ -200,8 +198,7 @@ public /* Abstract? */ class Piece {
                     ChessBoard.doublePawnMoves.add(destination); // add the destination to the doublePawnMoves stack
                 }
             }
-            
-            if (!wait)
+              if (!wait)
                 notation.add(m);
                 
             if(isEnPassant(destination)) // if the move is a capture EnPassant
@@ -274,7 +271,6 @@ public /* Abstract? */ class Piece {
         return false;
     }
 
-    
     // returns true if the given move is a capture EnPassant
     public boolean isEnPassant(int destination)
     {
@@ -284,7 +280,6 @@ public /* Abstract? */ class Piece {
         }
         return false;
     }
-
     
     // method to capture En Passant
     public void enPassant(int destination)
