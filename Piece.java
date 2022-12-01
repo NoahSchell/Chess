@@ -266,7 +266,14 @@ public /* Abstract? */ class Piece {
                         stale = false;
             }
             if (stale)
-                ChessBoard.staleMate();
+            {
+                if (turn && ChessBoard.whiteKing.isInCheck())
+                    ChessBoard.win(false);
+                else if (!turn && ChessBoard.blackKing.isInCheck())
+                    ChessBoard.win(true);
+                else
+                    ChessBoard.staleMate();
+            }
 
             return true;
         }
