@@ -201,7 +201,7 @@ public class ChessBoard extends JFrame {
             if (e.getSource() == notation)
                 showNotation();
             if (e.getSource() == draw)
-                draw();
+                offerDraw();
             frame.setVisible(false);
         }
     }
