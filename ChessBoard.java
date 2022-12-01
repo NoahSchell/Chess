@@ -80,11 +80,11 @@ public class ChessBoard extends JFrame {
         whiteTime.setBackground(Color.decode("#7d5d3b"));
         JPanel blackTime = new JPanel();
         blackTime.setBackground(Color.decode("#7d5d3b"));
-        forefit = new JButton("Forefit");
-        forefit.setBackground(Color.decode("#7d5d3b"));
-        forefit.setBorderPainted(false);
-        forefit.setFocusPainted(false);
-        forefit.addActionListener(new OptionsPaneButtons());
+        forfeit = new JButton("Forefit");
+        forfeit.setBackground(Color.decode("#7d5d3b"));
+        forfeit.setBorderPainted(false);
+        forfeit.setFocusPainted(false);
+        forfeit.addActionListener(new OptionsPaneButtons());
         fen = new JButton("FEN String");
         fen.setBackground(Color.decode("#7d5d3b"));
         fen.setBorderPainted(false);
@@ -115,7 +115,7 @@ public class ChessBoard extends JFrame {
         options.add(fen);
         options.add(notation);
         options.add(result);
-        options.add(forefit);
+        options.add(forfeit);
         options.add(draw);
         options.add(whiteTime);
         this.setVisible(true);
@@ -123,7 +123,7 @@ public class ChessBoard extends JFrame {
         blackTimeThread.start();
     }
 
-    static JButton five, ten, fifteen, thirty, forefit, fen, notation, back, forward, custom, draw;
+    static JButton five, ten, fifteen, thirty, forfeit, fen, notation, back, forward, custom, draw;
     static JLabel result = new JLabel("Result: Unknown");
     static int startTime;
     JFrame frame;
@@ -191,8 +191,8 @@ public class ChessBoard extends JFrame {
                 startTime = d;
                 updateVisible();
             }
-            if (e.getSource() == forefit)
-                forefit();
+            if (e.getSource() == forfeit)
+                forfeit();
             if (e.getSource() == fen)
             {
                 String f = getFen();
@@ -263,7 +263,7 @@ public class ChessBoard extends JFrame {
         fr.pack();
         fr.setVisible(true);
     }
-    public void forefit() {
+    public void forfeit() {
         boolean current = Piece.getTurn();
         win(!current);
     }
