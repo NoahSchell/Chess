@@ -45,7 +45,7 @@ public class Pawn extends Piece {
         try {
             potentialCapture = game[position + forward(1) + right(1)];
             if (potentialCapture != null && potentialCapture.getColor() != color) {
-                pseudoLegalMoves.add(position + forward(1) + right(1));
+                try {pseudoLegalMoves.add(position + forward(1) + right(1));} catch(IllegalStateException e) {}
             }
         } catch (IllegalStateException e) {
         }
@@ -56,11 +56,11 @@ public class Pawn extends Piece {
             doublePawnMove = ChessBoard.doublePawnMoves.get(ChessBoard.doublePawnMoves.size()-1);
             if(doublePawnMove == position - 1)
             {
-                pseudoLegalMoves.add(position + forward(1) + left(1));
+                try {pseudoLegalMoves.add(position + forward(1) + left(1));} catch (IllegalStateException e) {}
             }
             else if(doublePawnMove == position + 1)
             {
-                pseudoLegalMoves.add(position + forward(1) + right(1));
+                try {pseudoLegalMoves.add(position + forward(1) + right(1));} catch (IllegalStateException e) {}
             }
         }
     }

@@ -184,6 +184,11 @@ public class ChessBoard extends JFrame {
                     try {
                         String t = JOptionPane.showInputDialog("Enter the number of minutes you would like to start with");
                         d = Integer.parseInt(t);
+                        while (d <= 0)
+                        {
+                            t = JOptionPane.showInputDialog("Enter the number of minutes you would like to start with");
+                            d = Integer.parseInt(t);
+                        }
                         break;
                     }
                     catch (NumberFormatException exce) {JOptionPane.showMessageDialog(null, "Please enter a positive integer.", "Format error", JOptionPane.WARNING_MESSAGE);}

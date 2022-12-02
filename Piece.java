@@ -111,7 +111,7 @@ public /* Abstract? */ class Piece {
         {
             Piece pointer = game[x]; //pointer in the array
             // if pointer is a piece and it is a different piece and it is the same color as the moving piece and is is the same piece
-            if (pointer != null && pointer != this && pointer.getColor() == this.getColor() && type == pointer.getClass())
+            if (pointer != null && !(pointer instanceof Pawn) && pointer != this && pointer.getColor() == this.getColor() && type == pointer.getClass())
                 if (pointer.getLegalMoves().contains(destination))
                 {
                     if (getColumn(this.position) == getColumn(pointer.position))
@@ -131,14 +131,16 @@ public /* Abstract? */ class Piece {
         if (this instanceof Pawn && Math.abs(getRow(position) - getRow(destination)) == 2) 
         {
             // if opposite colored pawn is to the right...
-            if (game[destination + right(1)] instanceof Pawn && game[destination + right(1)].getColor() != color)
+            if (getColumn(position) != 7 && game[destination + right(1)] instanceof Pawn && game[destination + right(1)].getColor() != color)
             {
-                game[destination + right(1)].pseudoLegalMoves.add( this.position + forward(1)    );
+                try {game[destination + right(1)].pseudoLegalMoves.add( this.position + forward(1)    );}
+                catch (IllegalStateException e) {}
 
             }
-            if (game[destination + left(1)] instanceof Pawn && game[destination + left(1)].getColor() != color)
+            if (getColumn(position) != 0 && game[destination + left(1)] instanceof Pawn && game[destination + left(1)].getColor() != color)
             {
-                game[destination + left(1)].pseudoLegalMoves.add( this.position + forward(1));
+                try {game[destination + left(1)].pseudoLegalMoves.add( this.position + forward(1));} 
+                catch (IllegalStateException e) {}
             }
             
         }
@@ -254,7 +256,7 @@ public /* Abstract? */ class Piece {
                     m += "#";
             }
 
-            // if a pawn was promoted
+            /* if a pawn was promoted
             if (this instanceof Pawn && color && destination >= 0 && destination < 8){
                 promote(true);
                 wait = true;
@@ -262,7 +264,7 @@ public /* Abstract? */ class Piece {
             else if (this instanceof Pawn && !color && destination >= 56 && destination <= 63){
                 promote(false);
                 wait = true;
-            }
+            }*/
             if (!wait)
                 notation.add(m);
 
@@ -367,6 +369,8 @@ public /* Abstract? */ class Piece {
             }
             notation.add(m);
             f.setVisible(false);
+            f.setVisible(false);
+            f.dispose();
             ChessBoard.displayGame();
         }
     }
@@ -480,7 +484,7 @@ public /* Abstract? */ class Piece {
         int end = getColumn(position + n);
         // ensures the ending column is to the right of the starting column and they're
         // on the same row.
-        if (end < start || Math.abs(end - start) >= 8)
+        if (end > 7 || end < start || Math.abs(position + n - position) >= 8)
             throw new IllegalStateException("This piece cannot move to the right!");
         return n;
     }
@@ -490,7 +494,7 @@ public /* Abstract? */ class Piece {
         int end = getColumn(position - n);
         // ensures the ending column is to the left of the starting column and they're
         // on the same row.
-        if (end > start || Math.abs(end - start) >= 8)
+        if (end < 0 || end > start || Math.abs((position -n) - position) >= 8)
             throw new IllegalStateException("This piece cannot move to the left!");
         return -n;
     }
